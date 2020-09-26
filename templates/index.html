@@ -4,11 +4,32 @@
 
 {% block page_content %}
 <div class="page-header">
-    <h1>Hello World!</h1>
+   <h1>Hello, {% if name %}{{ name }}{% else %}Stranger{% endif %}!</h1>
+   <h1>Clicked Location: {% if latlng %}{{ latlng }}{% else %}Not Clicked{% endif %}</h1>
+</div>
+
+<div class="page-header">
+<form method="POST">
+{{ form.hidden_tag() }}
+{{ form.name.label }} {{ form.name() }}
+{{ form.latlng.label }} {{ form.latlng(onchange="getLatLng()") }}
+{{ form.submit() }}
+</form>
 </div>
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
 {% include "map.html" %}
+<script type="text/javascript">
+var map = {{ mapid }};
+var data = "";
+function getLatLng() {
+    document.getElementById('latlng').value = data;
+}
+map.on('click', function(e) {
+    data = e.latlng.lat.toFixed(6) + ", " + e.latlng.lng.toFixed(6);
+    getLatLng();
+});
+</script>
 {% endblock %}
