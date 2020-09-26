@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, session, redirect, url_for, render_template
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
@@ -43,12 +43,15 @@ def index():
     el = folium.MacroElement().add_to(map)
     el._template = latlngPop
     map.save('templates/map.html')
-    mapid = "map_"+map._id
+    session["mapid"] = "map_"+map._id
     if form.validate_on_submit():
-        name = form.name.data
-        latlng = form.latlng.data
-        return render_template("index.html", form=form, mapid=mapid, name=name, latlng=latlng)
-    return render_template("index.html", form=form, mapid=mapid)
+        session["name"] = form.name.data
+        session["latlng"] = form.latlng.data
+        return redirect(url_for("index", mapid=session.get("mapid")))
+    return render_template('index.html', form=form,
+                            mapid=session.get("mapid"),
+                            name = session.get("name"),
+                            latlng = session.get("latlng") )
 
 
 
