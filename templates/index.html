@@ -1,6 +1,14 @@
-{% extends "layout.html" %}
-{% block title %} Test {% endblock %}
-{% block head %} {{ super() }} {% endblock %}
-{% block body %}
-    {% include "map.html" %}
+{% extends "base.html" %}
+
+{% block title %}Test{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>Hello World!</h1>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{% include "map.html" %}
 {% endblock %}
