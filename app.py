@@ -23,13 +23,15 @@ latlngPop = jinja2.Template("""
 
                    {% macro script(this, kwargs) %}
 
+                      parentWindow = window.parent;
                       var {{this.get_name()}} = L.popup();
                       function latlngPop(e) {
-                      data = e.latlng.lat.toFixed(6) + ", " + e.latlng.lng.toFixed(6);
-                             {{this.get_name()}}.setLatLng(e.latlng)
-                                                .setContent( "<br/> "+data+" <br/><a href="+data+">Click Here</a>")
-                                                .openOn({{this._parent.get_name()}})
-                             }
+                          data = e.latlng.lat.toFixed(6) + ", " + e.latlng.lng.toFixed(6);
+                          {{this.get_name()}}.setLatLng(e.latlng)
+                                             .setContent( "<br/> "+data+" <br/><a href="+data+">Click Here</a>")
+                                             .openOn({{this._parent.get_name()}})
+                          parentWindow.document.getElementById("latlng").value = data;
+                      }
                       {{this._parent.get_name()}}.on('click', latlngPop);
 
                    {% endmacro %}""")
@@ -43,13 +45,11 @@ def index():
     el = folium.MacroElement().add_to(map)
     el._template = latlngPop
     map.save('templates/map.html')
-    session["mapid"] = "map_"+map._id
     if form.validate_on_submit():
         session["name"] = form.name.data
         session["latlng"] = form.latlng.data
-        return redirect(url_for("index", mapid=session.get("mapid")))
+        return redirect(url_for("index"))
     return render_template('index.html', form=form,
-                            mapid=session.get("mapid"),
                             name = session.get("name"),
                             latlng = session.get("latlng") )
 
