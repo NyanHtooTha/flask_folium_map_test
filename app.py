@@ -41,10 +41,10 @@ latlngPop = jinja2.Template("""
 def index():
     form = TestForm()
     start_coords = (16.79631, 96.16469)
-    map = folium.Map(location=start_coords, zoom_start=14)
-    el = folium.MacroElement().add_to(map)
+    map_tem = folium.Map(location=start_coords, zoom_start=14)
+    el = folium.MacroElement().add_to(map_tem)
     el._template = latlngPop
-    map.save('templates/map.html')
+    map_tem.save('templates/map.html')
     if form.validate_on_submit():
         session["name"] = form.name.data
         session["latlng"] = form.latlng.data
@@ -55,7 +55,7 @@ def index():
 
 
 @app.route('/map')
-def map():
+def route_map():
     return render_template("map.html")
 
 
