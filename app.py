@@ -19,20 +19,16 @@ class TestForm(FlaskForm):
     submit = SubmitField('Submit')
 
 
-latlngPop = jinja2.Template("""
+set_latlng_by_onclick = jinja2.Template("""
 
                    {% macro script(this, kwargs) %}
 
                       parentWindow = window.parent;
-                      var {{this.get_name()}} = L.popup();
-                      function latlngPop(e) {
-                          data = e.latlng.lat.toFixed(6) + ", " + e.latlng.lng.toFixed(6);
-                          {{this.get_name()}}.setLatLng(e.latlng)
-                                             .setContent( "<br/> "+data+" <br/><a href="+data+">Click Here</a>")
-                                             .openOn({{this._parent.get_name()}})
+                      {{this._parent.get_name()}}.on('click', function(e) {
+                          data = e.latlng.lat.toFixed(4) + ", " + e.latlng.lng.toFixed(4);
                           parentWindow.document.getElementById("latlng").value = data;
-                      }
-                      {{this._parent.get_name()}}.on('click', latlngPop);
+                          }
+                      );
 
                    {% endmacro %}""")
 
@@ -42,14 +38,18 @@ def index():
     form = TestForm()
     start_coords = (16.79631, 96.16469)
     map_tem = folium.Map(location=start_coords, zoom_start=14)
+    map_tem.add_child(folium.LatLngPopup())
     el = folium.MacroElement().add_to(map_tem)
-    el._template = latlngPop
+    el._template = set_latlng_by_onclick
     if session.get("name") and session.get("latlng"):
         mark_place = list(map(float, session.get("latlng").split(",")))
+        msg_html = '''<b>Clicked Location</b>
+                      <p>Latitude: {} <br/> Longitude: {}</p>
+                   '''.format(*mark_place)
+        message = folium.Html(msg_html, script=True)
         folium.Marker(
                mark_place,
-               popup="""<b>Clicked Location</b>
-                        <p>Latitude: {} <br/> Longitude: {}</p>""".format(*mark_place),
+               popup=folium.Popup(message, max_width=300, min_width=200),
                tooltip="Hello",
                icon=folium.Icon(color='red'),
                ).add_to(map_tem)
