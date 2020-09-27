@@ -44,6 +44,15 @@ def index():
     map_tem = folium.Map(location=start_coords, zoom_start=14)
     el = folium.MacroElement().add_to(map_tem)
     el._template = latlngPop
+    if session.get("name") and session.get("latlng"):
+        mark_place = list(map(float, session.get("latlng").split(",")))
+        folium.Marker(
+               mark_place,
+               popup="""<b>Clicked Location</b>
+                        <p>Latitude: {} <br/> Longitude: {}</p>""".format(*mark_place),
+               tooltip="Hello",
+               icon=folium.Icon(color='red'),
+               ).add_to(map_tem)
     map_tem.save('templates/map.html')
     if form.validate_on_submit():
         session["name"] = form.name.data
