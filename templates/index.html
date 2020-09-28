@@ -17,3 +17,13 @@
 
 <iframe src="/map" width="100%" height="400"></iframe>
 {% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+document.addEventListener('dblclick', function(e) {
+    document.getElementById("latlng").value = "";
+    document.getElementById("locate").value = "";
+});
+</script>
+{% endblock %}

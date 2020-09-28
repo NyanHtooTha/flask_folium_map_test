@@ -4,6 +4,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
 import folium
+from folium import plugins
 import jinja2
 
 
@@ -15,7 +16,8 @@ app.config['SECRET_KEY'] = 'this is secret string'
 
 class TestForm(FlaskForm):
     name = StringField('What is your name?', validators=[DataRequired()])
-    latlng = StringField('Clicked location:')
+    latlng = StringField('Clicked location:', default="")
+    locate = StringField('Current location:', default="")
     submit = SubmitField('Submit')
 
 
@@ -41,6 +43,7 @@ def index():
     start_coords = (16.79631, 96.16469)
     map_tem = folium.Map(location=start_coords, zoom_start=14)
     map_tem.add_child(folium.LatLngPopup())
+    map_tem.add_child(plugins.LocateControl())
     el = folium.MacroElement().add_to(map_tem)
     el._template = set_latlng_by_onclick
     if session.get("name") and session.get("latlng"):
