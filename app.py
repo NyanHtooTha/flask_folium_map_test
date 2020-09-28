@@ -25,10 +25,12 @@ set_latlng_by_onclick = jinja2.Template("""
 
                       parentWindow = window.parent;
                       {{this._parent.get_name()}}.on('click', function(e) {
+                          parentWindow.document.getElementById("latlng").value = "";
                           data = e.latlng.lat.toFixed(4) + ", " + e.latlng.lng.toFixed(4);
+                          setTimeout( function() {
                           parentWindow.document.getElementById("latlng").value = data;
-                          }
-                      );
+                          }, 3000);
+                        });
 
                    {% endmacro %}""")
 
