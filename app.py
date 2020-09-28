@@ -21,7 +21,7 @@ class TestForm(FlaskForm):
     submit = SubmitField('Submit')
 
 
-set_latlng_by_onclick = jinja2.Template("""
+set_unset_latlng_locate = jinja2.Template("""
 
                    {% macro script(this, kwargs) %}
 
@@ -31,14 +31,14 @@ set_latlng_by_onclick = jinja2.Template("""
                           data = e.latlng.lat.toFixed(4) + ", " + e.latlng.lng.toFixed(4);
                           setTimeout( function() {
                           parentWindow.document.getElementById("latlng").value = data;
-                          }, 3000);
+                          }, 2000);
                         });
 
                         {{this._parent.get_name()}}.on('locationfound', function (e) {
                             data = e.latlng.lat.toFixed(4) + ", " + e.latlng.lng.toFixed(4);
                             setTimeout( function() {
                             parentWindow.document.getElementById("locate").value = data;
-                            }, 3000);
+                            }, 2000);
                         });
 
                    {% endmacro %}""")
@@ -52,7 +52,7 @@ def index():
     map_tem.add_child(folium.LatLngPopup())
     map_tem.add_child(plugins.LocateControl())
     el = folium.MacroElement().add_to(map_tem)
-    el._template = set_latlng_by_onclick
+    el._template = set_unset_latlng_locate
     if session.get("name") and session.get("latlng"):
         mark_place = list(map(float, session.get("latlng").split(",")))
         msg_html = '''<b>Clicked Location</b>

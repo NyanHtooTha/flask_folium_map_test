@@ -21,6 +21,7 @@
 {% block scripts %}
 {{ super() }}
 <script>
+{# double-click on screen to unset latlng an locate #}
 document.addEventListener('dblclick', function(e) {
     document.getElementById("latlng").value = "";
     document.getElementById("locate").value = "";
