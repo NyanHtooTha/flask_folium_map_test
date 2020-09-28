@@ -34,6 +34,13 @@ set_latlng_by_onclick = jinja2.Template("""
                           }, 3000);
                         });
 
+                        {{this._parent.get_name()}}.on('locationfound', function (e) {
+                            data = e.latlng.lat.toFixed(4) + ", " + e.latlng.lng.toFixed(4);
+                            setTimeout( function() {
+                            parentWindow.document.getElementById("locate").value = data;
+                            }, 3000);
+                        });
+
                    {% endmacro %}""")
 
 
