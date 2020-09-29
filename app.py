@@ -6,6 +6,7 @@ from wtforms.validators import DataRequired
 import folium
 from folium import plugins
 import jinja2
+from calculate import get_mid_point
 
 
 
@@ -21,7 +22,7 @@ class TestForm(FlaskForm):
     submit = SubmitField('Submit')
 
 
-set_unset_latlng_locate = jinja2.Template("""
+set_latlng_locate = jinja2.Template("""
 
                    {% macro script(this, kwargs) %}
 
@@ -49,12 +50,14 @@ def index():
     form = TestForm()
     start_coords = (16.79631, 96.16469)
     map_tem = folium.Map(location=start_coords, zoom_start=14)
-    map_tem.add_child(folium.LatLngPopup())
-    map_tem.add_child(plugins.LocateControl())
-    el = folium.MacroElement().add_to(map_tem)
-    el._template = set_unset_latlng_locate
     if session.get("name") and session.get("latlng"):
         mark_place = list(map(float, session.get("latlng").split(",")))
+        map_tem = folium.Map(location=mark_place, zoom_start=16)
+        if session.get("locate"):
+            cur_locate = list(map(float, session.get("locate").split(",")))
+            mid_point = get_mid_point(cur_locate, mark_place)
+            #To play zoom_start level here later
+            map_tem = folium.Map(location=mid_point, zoom_start=12)
         msg_html = '''<b>Clicked Location</b>
                       <p>Latitude: {} <br/> Longitude: {}</p>
                    '''.format(*mark_place)
@@ -65,10 +68,15 @@ def index():
                tooltip="Hello",
                icon=folium.Icon(color='red'),
                ).add_to(map_tem)
+    map_tem.add_child(folium.LatLngPopup())
+    map_tem.add_child(plugins.LocateControl())
+    el = folium.MacroElement().add_to(map_tem)
+    el._template = set_latlng_locate
     map_tem.save('templates/map.html')
     if form.validate_on_submit():
         session["name"] = form.name.data
         session["latlng"] = form.latlng.data
+        session["locate"] = form.locate.data
         return redirect(url_for("index"))
     return render_template('index.html', form=form,
                             name = session.get("name"),
