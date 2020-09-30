@@ -40,6 +40,16 @@ set_latlng_locate = jinja2.Template("""
                             setTimeout( function() {
                             parentWindow.document.getElementById("locate").value = data;
                             }, 2000);
+
+                            var marker  = L.marker([e.latlng.lat, e.latlng.lng],
+                                                   {}
+                                                   ).addTo({{this._parent.get_name()}});
+                            var popup = L.popup().setLatLng(e.latlng)
+                                                 .setContent("<b>Your Current Location</b><br>" +
+                                                             "<br>Latitude: " + e.latlng.lat.toFixed(4) +
+                                                             "<br>Longitude: " + e.latlng.lng.toFixed(4))
+                                                 .openOn({{this._parent.get_name()}});
+                            marker.bindPopup(popup);
                         });
 
                    {% endmacro %}""")
