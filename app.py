@@ -27,30 +27,38 @@ set_latlng_locate = jinja2.Template("""
                    {% macro script(this, kwargs) %}
 
                       parentWindow = window.parent;
+                      var former_marker;
                       {{this._parent.get_name()}}.on('click', function(e) {
+                          if (former_marker){ {{this._parent.get_name()}}.removeLayer(former_marker); }
+                          var new_marker = L.marker().setLatLng(e.latlng).addTo({{this._parent.get_name()}});
+                          new_marker.on('dblclick', function(e){ {{this._parent.get_name()}}.removeLayer(e.target) });
+                          var lat = e.latlng.lat.toFixed(4), lng = e.latlng.lng.toFixed(4);
+                          new_marker.bindPopup("Latitude: " + lat + "<br>Longitude: " + lng );
+                          former_marker = new_marker;
+
                           parentWindow.document.getElementById("latlng").value = "";
-                          data = e.latlng.lat.toFixed(4) + ", " + e.latlng.lng.toFixed(4);
+                          data = lat + ", " + lng;
                           setTimeout( function() {
                           parentWindow.document.getElementById("latlng").value = data;
                           }, 2000);
-                        });
+                      });
 
-                        {{this._parent.get_name()}}.on('locationfound', function (e) {
-                            data = e.latlng.lat.toFixed(4) + ", " + e.latlng.lng.toFixed(4);
-                            setTimeout( function() {
-                            parentWindow.document.getElementById("locate").value = data;
-                            }, 2000);
+                      {{this._parent.get_name()}}.on('locationfound', function (e) {
+                          data = e.latlng.lat.toFixed(4) + ", " + e.latlng.lng.toFixed(4);
+                          setTimeout( function() {
+                          parentWindow.document.getElementById("locate").value = data;
+                          }, 2000);
 
-                            var marker  = L.marker([e.latlng.lat, e.latlng.lng],
-                                                   {}
-                                                   ).addTo({{this._parent.get_name()}});
-                            var popup = L.popup().setLatLng(e.latlng)
-                                                 .setContent("<b>Your Current Location</b><br>" +
-                                                             "<br>Latitude: " + e.latlng.lat.toFixed(4) +
-                                                             "<br>Longitude: " + e.latlng.lng.toFixed(4))
-                                                 .openOn({{this._parent.get_name()}});
-                            marker.bindPopup(popup);
-                        });
+                          var marker  = L.marker([e.latlng.lat, e.latlng.lng],
+                                                 {}
+                                                 ).addTo({{this._parent.get_name()}});
+                          var popup = L.popup().setLatLng(e.latlng)
+                                               .setContent("<b>Your Current Location</b><br>" +
+                                                           "<br>Latitude: " + e.latlng.lat.toFixed(4) +
+                                                           "<br>Longitude: " + e.latlng.lng.toFixed(4))
+                                               .openOn({{this._parent.get_name()}});
+                          marker.bindPopup(popup);
+                      });
 
                    {% endmacro %}""")
 
@@ -78,7 +86,8 @@ def index():
                tooltip="Hello",
                icon=folium.Icon(color='red'),
                ).add_to(map_tem)
-    map_tem.add_child(folium.LatLngPopup())
+    #map_tem.add_child(folium.LatLngPopup())
+    #map_tem.add_child(folium.ClickForMarker())
     map_tem.add_child(plugins.LocateControl())
     el = folium.MacroElement().add_to(map_tem)
     el._template = set_latlng_locate
