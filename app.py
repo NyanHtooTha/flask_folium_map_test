@@ -30,7 +30,10 @@ set_latlng_locate = jinja2.Template("""
                       var former_marker;
                       {{this._parent.get_name()}}.on('click', function(e) {
                           if (former_marker){ {{this._parent.get_name()}}.removeLayer(former_marker); }
-                          var new_marker = L.marker().setLatLng(e.latlng).addTo({{this._parent.get_name()}});
+                          icon = L.AwesomeMarkers.icon(
+                                     {"extraClasses": "fa-rotate-0", "icon": "check",
+                                      "iconColor": "white", "markerColor": "red", "prefix": "glyphicon"});
+                          var new_marker = L.marker().setLatLng(e.latlng).setIcon(icon).addTo({{this._parent.get_name()}});
                           new_marker.on('dblclick', function(e){ {{this._parent.get_name()}}.removeLayer(e.target) });
                           var lat = e.latlng.lat.toFixed(4), lng = e.latlng.lng.toFixed(4);
                           new_marker.bindPopup("Latitude: " + lat + "<br>Longitude: " + lng );
