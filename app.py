@@ -28,6 +28,9 @@ set_latlng_locate = jinja2.Template("""
 
                       parentWindow = window.parent;
                       var former_marker;
+
+                      function remove_marker() { if (former_marker){ {{this._parent.get_name()}}.removeLayer(former_marker); } }
+
                       {{this._parent.get_name()}}.on('click', function(e) {
                           if (former_marker){ {{this._parent.get_name()}}.removeLayer(former_marker); }
                           icon = L.AwesomeMarkers.icon(
