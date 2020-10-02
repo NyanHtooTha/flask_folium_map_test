@@ -1,8 +1,9 @@
 from flask import Flask, session, redirect, url_for, render_template
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
+from wtforms import StringField, SubmitField, Form, FormField
 from wtforms.validators import DataRequired
+from wtforms.widgets import TextArea
 import folium
 from folium import plugins
 import jinja2
@@ -19,6 +20,19 @@ class TestForm(FlaskForm):
     name = StringField('What is your name?', validators=[DataRequired()])
     latlng = StringField('Clicked location:', default="")
     locate = StringField('Current location:', default="")
+    submit = SubmitField('Submit')
+
+
+class Info(Form):
+    name = StringField('Name', validators=[DataRequired()])
+    phone = StringField('Phone Number')
+    location = StringField('Location')
+    address = StringField('Address', widget=TextArea())
+
+
+class ExpressForm(FlaskForm):
+    sender_info = FormField(Info)
+    receiver_info = FormField(Info)
     submit = SubmitField('Submit')
 
 
@@ -106,6 +120,15 @@ def index():
     return render_template('index.html', form=form,
                             name = session.get("name"),
                             latlng = session.get("latlng") )
+
+
+@app.route('/express')
+def express():
+    form = ExpressForm()
+    start_coords = (16.79631, 96.16469)
+    map_tem = folium.Map(location=start_coords, zoom_start=14)
+    map_tem.save('templates/map.html')
+    return render_template('express.html', form=form)
 
 
 @app.route('/map')
