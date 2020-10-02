@@ -83,6 +83,53 @@ set_latlng_locate = jinja2.Template("""
                    {% endmacro %}""")
 
 
+set_express_locations = jinja2.Template("""
+
+                   {% macro script(this, kwargs) %}
+
+                      parentWindow = window.parent;
+                      var sender_marker=false, receiver_marker=false;
+
+                      {{this._parent.get_name()}}.on('click', function(e) {
+                          function get_icon(color) {
+                              icon = L.AwesomeMarkers.icon(
+                                         {"extraClasses": "fa-rotate-0", "icon": "check",
+                                          "iconColor": "white", "markerColor": color, "prefix": "glyphicon"});
+                               return icon;
+                          }
+
+                          var lat = e.latlng.lat.toFixed(4), lng = e.latlng.lng.toFixed(4);
+                          var data = lat + ", " + lng;
+                          if (!sender_marker) {
+                              icon = get_icon('green');
+                              sender_marker = L.marker().setLatLng(e.latlng).setIcon(icon).addTo({{this._parent.get_name()}});
+                              sender_marker.bindPopup("Latitude: " + lat + "<br>Longitude: " + lng );
+                              setTimeout( function() {
+                                  parentWindow.document.getElementById("sender_info-location").value = data;
+                              }, 2000);
+                              sender_marker.on('dblclick', function(e){
+                                  {{this._parent.get_name()}}.removeLayer(e.target);
+                                  parentWindow.document.getElementById("sender_info-location").value = "";
+                                  sender_marker = false;
+                              });
+                          } else if (!receiver_marker) {
+                              icon = get_icon('red');
+                              receiver_marker = L.marker().setLatLng(e.latlng).setIcon(icon).addTo({{this._parent.get_name()}});
+                              receiver_marker.bindPopup("Latitude: " + lat + "<br>Longitude: " + lng );
+                              setTimeout( function() {
+                                  parentWindow.document.getElementById("receiver_info-location").value = data;
+                              }, 2000);
+                              receiver_marker.on('dblclick', function(e){
+                                  {{this._parent.get_name()}}.removeLayer(e.target);
+                                  parentWindow.document.getElementById("receiver_info-location").value = "";
+                                  receiver_marker = false;
+                              });
+                          } else {}
+                      });
+
+                   {% endmacro %}""")
+
+
 @app.route('/', methods=["GET", "POST"])
 def index():
     form = TestForm()
@@ -127,6 +174,8 @@ def express():
     form = ExpressForm()
     start_coords = (16.79631, 96.16469)
     map_tem = folium.Map(location=start_coords, zoom_start=14)
+    el = folium.MacroElement().add_to(map_tem)
+    el._template = set_express_locations
     map_tem.save('templates/map.html')
     return render_template('express.html', form=form)
 
