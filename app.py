@@ -188,6 +188,14 @@ def route_map():
     return render_template("map.html")
 
 
+@app.route('/test')
+def test():
+    start_coords = (16.79631, 96.16469)
+    map_tem = folium.Map(location=start_coords, zoom_start=14)
+    map_tem.save('templates/map.html')
+    return render_template("test.html")
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
