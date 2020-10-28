@@ -232,14 +232,15 @@ function add_area_popup(layer) {
         //layer.closePopup();
     });
     $('.save').click(function() {
+        save_area_name_desc(layer);
         $(this).siblings('.edit').show();
         $(this).siblings('.cancel').hide();
         $(this).hide();
     });
 
-    document.getElementById("okBtn").addEventListener("click", function() {
-        save_area_name_desc(layer);
-    }, false);
+    //document.getElementById("okBtn").addEventListener("click", function() {
+    //    save_area_name_desc(layer);
+    //}, false);
 
     layer.on("popupopen", function () {
         $('#area_name').val(layer.feature.properties.area_name);
