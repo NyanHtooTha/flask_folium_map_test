@@ -192,6 +192,8 @@ def route_map():
 def test():
     start_coords = (16.79631, 96.16469)
     map_tem = folium.Map(location=start_coords, zoom_start=14)
+    draw = plugins.Draw(export=True)
+    draw.add_to(map_tem)
     map_tem.save('templates/map.html')
     return render_template("test.html")
 
