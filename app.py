@@ -209,18 +209,41 @@ function add_area_popup(layer) {
                        '<input id="area_name" type="text" size="25" /><br/><br/>'+
                        '<span><b>Area Description<b/></span><br/>'+
                        '<textarea id="area_desc" cols="25" rows="5" style="resize:none;" ></textarea><br/><br/>'+
-                       '<input type="button" id="okBtn" value="Save" />';
-    var content = document.createElement("div");
-    content.innerHTML = content_html;
-    layer.bindPopup(content).openPopup();
+                       '<div><input class="edit" type="button" value="Edit" style="display:none;" />'+
+                       '<input id="okBtn" class="save" type="button" value="Save" />'+
+                       '<input class="cancel" type="button" value="Cancel" style="display:none;" /></div>'
+     var content = document.createElement("div");
+     content.innerHTML = content_html;
+     layer.bindPopup(content).openPopup();
+
+    $('.edit').click(function() {
+        $('#area_name').attr('readonly', false);
+        $('#area_desc').attr('readonly', false);
+        $(this).hide().siblings('.save, .cancel').show();
+    });
+    $('.cancel').click(function() {
+        $('#area_name').val(layer.feature.properties.area_name);
+        $('#area_desc').val(layer.feature.properties.area_desc);
+        $('#area_name').attr('readonly', true);
+        $('#area_desc').attr('readonly', true);
+        $(this).siblings('.edit').show();
+        $(this).siblings('.save').hide();
+        $(this).hide();
+        //layer.closePopup();
+    });
+    $('.save').click(function() {
+        $(this).siblings('.edit').show();
+        $(this).siblings('.cancel').hide();
+        $(this).hide();
+    });
 
     document.getElementById("okBtn").addEventListener("click", function() {
         save_area_name_desc(layer);
     }, false);
 
     layer.on("popupopen", function () {
-        content.area_name = layer.feature.properties.area_name;
-        content.area_desc = layer.feature.properties.area_desc;
+        $('#area_name').val(layer.feature.properties.area_name);
+        $('#area_desc').val(layer.feature.properties.area_desc);
         content.focus()
     });
 }
@@ -228,7 +251,9 @@ function add_area_popup(layer) {
 function save_area_name_desc(layer) {
      layer.feature.properties.area_name = document.getElementById("area_name").value;
      layer.feature.properties.area_desc = document.getElementById("area_desc").value;
-     layer.closePopup();
+     document.getElementById("area_name").readOnly = "true";
+     document.getElementById("area_desc").readOnly = "true";
+     //layer.closePopup();
 }
 
 {% endmacro %}""")
