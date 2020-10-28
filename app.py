@@ -205,18 +205,33 @@ drawn_element = jinja2.Template("""
 });
 
 function add_area_popup(layer) {
-    var content = document.createElement("textarea");
+    var area_popup = L.popup();
+    var content = '<span><b>Area Name</b></span><br/><input id="area_name" type="text"/><br/><br/>'+
+                  '<span><b>Area Description<b/></span><br/><textarea id="area_desc" rows="5"></textarea><br/><br/>'+
+                  '<input type="button" id="okBtn" value="Save" />';
+    area_popup.setContent(content);
+    layer.bindPopup(area_popup).openPopup();
 
-    content.addEventListener("keyup", function () {
-        layer.feature.properties.area_name = content.value;
-    });
+    document.getElementById("okBtn").addEventListener("click", function() {
+       save_area_name_desc(layer);
+    }, false);
 
     layer.on("popupopen", function () {
-        content.value = layer.feature.properties.area_name;
-        content.focus();
+        $('#area_name').val(layer.feature.properties.area_name);
+        $('#area_desc').val(layer.feature.properties.area_desc);
     });
+}
 
-    layer.bindPopup(content).openPopup();
+function save_area_name_desc(layer) {
+     var name = $('#area_name').val();
+     var desc = $('#area_desc').val();
+
+     var shapes_on_map = drawnItems.getLayers();  //drawnItems is a container for the drawn objects
+     console.log(shapes_on_map); //this is array of all drawn objects geojsons
+
+     layer.feature.properties.area_name = name;
+     layer.feature.properties.area_desc = desc;
+     layer.closePopup();
 }
 
 {% endmacro %}""")
