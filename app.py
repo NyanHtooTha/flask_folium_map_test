@@ -198,10 +198,26 @@ drawn_element = jinja2.Template("""
 
     feature.type = feature.type || "Feature"; // Intialize feature.type
     var props = feature.properties = feature.properties || {}; // Intialize feature.properties
-    props.title = "my title";
-    props.content = "my content";
+    props.area_name = null;
+    props.area_desc = null;
     drawnItems.addLayer(layer);
+    add_area_popup(layer);
 });
+
+function add_area_popup(layer) {
+    var content = document.createElement("textarea");
+
+    content.addEventListener("keyup", function () {
+        layer.feature.properties.area_name = content.value;
+    });
+
+    layer.on("popupopen", function () {
+        content.value = layer.feature.properties.area_name;
+        content.focus();
+    });
+
+    layer.bindPopup(content).openPopup();
+}
 
 {% endmacro %}""")
 
