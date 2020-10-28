@@ -188,12 +188,32 @@ def route_map():
     return render_template("map.html")
 
 
+drawn_element = jinja2.Template("""
+
+{% macro script(this, kwargs) %}
+
+{{this._parent.get_name()}}.on('draw:created', function (event) {
+    var layer = event.layer,
+    feature = layer.feature = layer.feature || {}; // Intialize layer.feature
+
+    feature.type = feature.type || "Feature"; // Intialize feature.type
+    var props = feature.properties = feature.properties || {}; // Intialize feature.properties
+    props.title = "my title";
+    props.content = "my content";
+    drawnItems.addLayer(layer);
+});
+
+{% endmacro %}""")
+
+
 @app.route('/test')
 def test():
     start_coords = (16.79631, 96.16469)
     map_tem = folium.Map(location=start_coords, zoom_start=14)
     draw = plugins.Draw(export=True)
     draw.add_to(map_tem)
+    el = folium.MacroElement().add_to(map_tem)
+    el._template = drawn_element
     map_tem.save('templates/map.html')
     return render_template("test.html")
 
