@@ -263,9 +263,85 @@ function save_area_name_desc(layer) {
 @app.route('/test')
 def test():
     start_coords = (16.79631, 96.16469)
-    map_tem = folium.Map(location=start_coords, zoom_start=14)
-    draw = plugins.Draw(export=True)
-    draw.add_to(map_tem)
+    map_tem = folium.Map(location=start_coords, zoom_start=14, control_scale=True)
+    plugins.Fullscreen().add_to(map_tem)
+    plugins.LocateControl().add_to(map_tem)
+    #Mouse position
+    fmtr = "function(num) {return L.Util.formatNum(num, 3) + ' º ';};"
+    plugins.MousePosition(position='topright', separator=' | ', prefix="Mouse:", \
+                          lat_formatter=fmtr, lng_formatter=fmtr).add_to(map_tem)
+    #Add measure tool
+    plugins.MeasureControl(position='bottomleft', primary_length_unit='meters', secondary_length_unit='miles',\
+                           primary_area_unit='sqmeters', secondary_area_unit='acres').add_to(map_tem)
+    #Add the draw
+    plugins.Draw(export=True, filename='data.geojson', position='topleft', draw_options=None, edit_options=None).add_to(map_tem)
+    #draw = plugins.Draw(export=True)
+    #draw.add_to(map_tem)
+
+    basemaps = {
+    'Google Maps': folium.TileLayer(
+        tiles = 'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+        attr = 'Google Maps',
+        name = 'Google Maps',
+        overlay = True,
+        control = True,
+        show = False
+    ),
+    'Google Satellite': folium.TileLayer(
+        tiles = 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
+        attr = 'Google Satellite',
+        name = 'Google Satellite',
+        overlay = True,
+        control = True,
+        show = False,
+    ),
+    'Google Terrain': folium.TileLayer(
+        tiles = 'https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',
+        attr = 'Google Terrain',
+        name = 'Google Terrain',
+        overlay = True,
+        control = True,
+        show = False
+    ),
+    'Google Satellite Hybrid': folium.TileLayer(
+        tiles = 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
+        attr = 'Google Satellite Hybrid',
+        name = 'Google Satellite Hybrid',
+        overlay = True,
+        control = True,
+        show = False
+    ),
+    'Esri Satellite': folium.TileLayer(
+        tiles = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        attr = 'Esri',
+        name = 'Esri Satellite',
+        overlay = True,
+        control = True,
+        show = False
+    )
+    }
+    # Add custom basemaps
+    basemaps['Google Maps'].add_to(map_tem)
+    basemaps['Google Satellite'].add_to(map_tem)
+    basemaps['Google Satellite Hybrid'].add_to(map_tem)
+    basemaps['Google Terrain'].add_to(map_tem)
+    basemaps['Esri Satellite'].add_to(map_tem)
+    #for k in basemaps:
+    #    basemaps[k].add_to(map_tem)
+
+    #folium.raster_layers.TileLayer('Open Street Map').add_to(map_tem)
+    #folium.TileLayer('Stamen Terrain', show=False).add_to(map_tem)
+    #folium.TileLayer('Stamen Toner', overlay=True, show=False).add_to(map_tem)
+    #folium.TileLayer('Stamen Watercolor', overlay=True, show=False).add_to(map_tem)
+    #folium.TileLayer('CartoDB Positron', overlay=True, show=False).add_to(map_tem)
+    #folium.TileLayer('CartoDB Dark_Matter', overlay=True, show=False).add_to(map_tem)
+
+    # Add a layer control panel to the map
+    map_tem.add_child(folium.LayerControl()) #this code must be here
+    #folium.LayerControl().add_to(map_tem) #same with map_tem.add_child(folium.LayerControl())
+    #Add minimap
+    plugins.MiniMap(tile_layer=basemaps['Google Satellite'], toggle_display=True, width=300, height=300, \
+                    zoom_level_offset= -5).add_to(map_tem)
     el = folium.MacroElement().add_to(map_tem)
     el._template = drawn_element
     map_tem.save('templates/map.html')
