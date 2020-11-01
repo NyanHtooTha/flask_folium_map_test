@@ -198,63 +198,85 @@ drawn_element = jinja2.Template("""
 
     feature.type = feature.type || "Feature"; // Intialize feature.type
     var props = feature.properties = feature.properties || {}; // Intialize feature.properties
-    props.area_name = null;
-    props.area_desc = null;
+    props.shape_name = null;
+    props.shape_desc = null;
     drawnItems.addLayer(layer);
-    add_area_popup(layer);
+    add_shape_popup(layer);
 });
 
-function add_area_popup(layer) {
-    var content_html = '<span><b>Area Name</b></span><br/>'+
-                       '<input id="area_name" type="text" size="25" /><br/><br/>'+
-                       '<span><b>Area Description<b/></span><br/>'+
-                       '<textarea id="area_desc" cols="25" rows="5" style="resize:none;" ></textarea><br/><br/>'+
+function make_content_html(layer) {
+    var l = layer.toGeoJSON();
+    var name = "Shape Name";
+    var desc = "Shape Description";
+    if (l.geometry.type == "LineString") {
+        name = "Path Name";
+        desc = "Path Description";
+    }
+    if (l.geometry.type == "Point") {
+        name = "Point Name";
+        desc = "Point Description";
+    }
+    if (layer._radius || l.geometry.type == "Polygon") {
+        name = "Area Name";
+        desc = "Area Descritption";
+    }
+
+    var content_html = `<span><b>${name}</b></span><br/>`+
+                       '<input id="shape_name" type="text" size="25" /><br/><br/>'+
+                       `<span><b>${desc}<b/></span><br/>`+
+                       '<textarea id="shape_desc" cols="25" rows="5" style="resize:none;" ></textarea><br/><br/>'+
                        '<div><input class="edit" type="button" value="Edit" style="display:none;" />'+
                        '<input id="okBtn" class="save" type="button" value="Save" />'+
                        '<input class="cancel" type="button" value="Cancel" style="display:none;" /></div>'
+    return content_html;
+}
+
+function add_shape_popup(layer) {
+     var content_html = make_content_html(layer);
      var content = document.createElement("div");
      content.innerHTML = content_html;
      layer.bindPopup(content).openPopup();
 
     $('.edit').click(function() {
-        $('#area_name').attr('readonly', false);
-        $('#area_desc').attr('readonly', false);
+        $('#shape_name').attr('readonly', false);
+        $('#shape_desc').attr('readonly', false);
         $(this).hide().siblings('.save, .cancel').show();
     });
     $('.cancel').click(function() {
-        $('#area_name').val(layer.feature.properties.area_name);
-        $('#area_desc').val(layer.feature.properties.area_desc);
-        $('#area_name').attr('readonly', true);
-        $('#area_desc').attr('readonly', true);
+        $('#shape_name').val(layer.feature.properties.shape_name);
+        $('#shape_desc').val(layer.feature.properties.shape_desc);
+        $('#shape_name').attr('readonly', true);
+        $('#shape_desc').attr('readonly', true);
         $(this).siblings('.edit').show();
         $(this).siblings('.save').hide();
         $(this).hide();
         //layer.closePopup();
     });
     $('.save').click(function() {
-        save_area_name_desc(layer);
+        save_shape_name_desc(layer);
         $(this).siblings('.edit').show();
         $(this).siblings('.cancel').hide();
         $(this).hide();
     });
 
     //document.getElementById("okBtn").addEventListener("click", function() {
-    //    save_area_name_desc(layer);
+    //    save_shape_name_desc(layer);
     //}, false);
 
     layer.on("popupopen", function () {
-        $('#area_name').val(layer.feature.properties.area_name);
-        $('#area_desc').val(layer.feature.properties.area_desc);
+        $('#shape_name').val(layer.feature.properties.shape_name);
+        $('#shape_desc').val(layer.feature.properties.shape_desc);
         content.focus()
     });
 }
 
-function save_area_name_desc(layer) {
-     layer.feature.properties.area_name = document.getElementById("area_name").value;
-     layer.feature.properties.area_desc = document.getElementById("area_desc").value;
-     document.getElementById("area_name").readOnly = "true";
-     document.getElementById("area_desc").readOnly = "true";
+function save_shape_name_desc(layer) {
+     layer.feature.properties.shape_name = document.getElementById("shape_name").value;
+     layer.feature.properties.shape_desc = document.getElementById("shape_desc").value;
+     document.getElementById("shape_name").readOnly = "true";
+     document.getElementById("shape_desc").readOnly = "true";
      //layer.closePopup();
+     //console.log(layer.toGeoJSON());
 }
 
 {% endmacro %}""")
