@@ -77,32 +77,32 @@ set_express_locations = jinja2.Template("""
         var icon = get_icon('green');
         var sender_marker = L.marker().setLatLng(e.latlng).setIcon(icon).addTo({{this._parent.get_name()}});
         sender_marker.bindPopup("Latitude: " + lat + "<br>Longitude: " + lng );
-        
+
         setTimeout( function() {
             parentWindow.document.getElementById("sender_info-location").value = data;
         }, 2000);
-        
+
         sender_marker.on('dblclick', function(e) {
             {{this._parent.get_name()}}.removeLayer(e.target);
             parentWindow.document.getElementById("sender_info-location").value = "";
             sender_marker = false;
         });
-    } 
+    }
     else if (!receiver_marker) {
         var icon = get_icon('red');
         receiver_marker = L.marker().setLatLng(e.latlng).setIcon(icon).addTo({{this._parent.get_name()}});
         receiver_marker.bindPopup("Latitude: " + lat + "<br>Longitude: " + lng );
-                              
+
         setTimeout( function() {
             parentWindow.document.getElementById("receiver_info-location").value = data;
         }, 2000);
-                              
+
         receiver_marker.on('dblclick', function(e) {
             {{this._parent.get_name()}}.removeLayer(e.target);
             parentWindow.document.getElementById("receiver_info-location").value = "";
             receiver_marker = false;
         });
-    } 
+    }
     else {}
 });
 
