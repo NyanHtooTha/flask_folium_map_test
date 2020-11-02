@@ -100,7 +100,7 @@ def test():
     fg = folium.FeatureGroup("Drawn Layer").add_to(map_tem)
     plugins.Search(fg, search_label="shape_name", collapsed=True, placeholder='Search'+' '*10).add_to(map_tem)
     #el2 = folium.MacroElement().add_to(map_tem)
-    #el2._template = elements["test2"] #elements["test"]
+    #el2._template = elements["search_control"] #elements["geocoder_control"]
     plugins.Fullscreen().add_to(map_tem)
     plugins.LocateControl().add_to(map_tem)
     #Mouse position

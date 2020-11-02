@@ -124,7 +124,7 @@ function getGlobalProperties(prefix) {
   return keyValues[0] // build the string
 }
 
-var feature_group = getGlobalProperties("feature_group");
+var feature_group = getGlobalProperties("feature_group"); //comment this while using "search_control"
 
 {{this._parent.get_name()}}.on('draw:created', function (event) {
     var layer = event.layer,
@@ -188,6 +188,7 @@ function add_shape_popup(layer) {
     });
     $('.save').click(function() {
         save_shape_name_desc(layer);
+        //feature_group.addLayer(layer); //use while using "search_control"
         window[feature_group]._layers = drawnItems._layers; //For Search Control
         $(this).siblings('.edit').show();
         $(this).siblings('.cancel').hide();
@@ -216,7 +217,7 @@ function save_shape_name_desc(layer) {
 
 {% endmacro %}""")
 
-test = jinja2.Template("""
+geocoder_control = jinja2.Template("""
 
 {% macro header(this, kwargs) %}
 
@@ -233,7 +234,7 @@ L.Control.geocoder(position="topleft").addTo({{this._parent.get_name()}})
 
 """)
 
-test2 = jinja2.Template("""
+search_control = jinja2.Template("""
 
 {% macro header(this, kwargs) %}
 
@@ -283,6 +284,6 @@ feature_group_searchControl.on('search:collapsed', function(e) {
 elements = dict( set_latlng_locate=set_latlng_locate,
                  set_express_locations=set_express_locations,
                  drawn_element=drawn_element,
-                 #test=test,
-                 #test2=test2,
+                 geocoder_control=geocoder_control,
+                 search_control=search_control,
                )
