@@ -8,6 +8,7 @@ import folium
 from folium import plugins
 from leafletjs_elements import elements
 from calculate import get_mid_point
+import jinja2
 
 
 
@@ -95,6 +96,11 @@ def route_map():
 def test():
     start_coords = (16.79631, 96.16469)
     map_tem = folium.Map(location=start_coords, zoom_start=14, control_scale=True)
+    #Search Control
+    fg = folium.FeatureGroup("Drawn Layer").add_to(map_tem)
+    plugins.Search(fg, search_label="shape_name", collapsed=True, placeholder='Search'+' '*10).add_to(map_tem)
+    #el2 = folium.MacroElement().add_to(map_tem)
+    #el2._template = elements["test2"] #elements["test"]
     plugins.Fullscreen().add_to(map_tem)
     plugins.LocateControl().add_to(map_tem)
     #Mouse position
@@ -172,7 +178,7 @@ def test():
     #folium.LayerControl().add_to(map_tem) #same with map_tem.add_child(folium.LayerControl())
     #Add minimap
     plugins.MiniMap(tile_layer=basemaps['Google Satellite'], toggle_display=True, width=300, height=300, \
-                    zoom_level_offset= -5).add_to(map_tem)
+                    zoom_level_offset= -5, minimized=True).add_to(map_tem)
     el = folium.MacroElement().add_to(map_tem)
     el._template = elements["drawn_element"]
     map_tem.save('templates/map.html')

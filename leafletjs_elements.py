@@ -113,6 +113,19 @@ drawn_element = jinja2.Template("""
 
 {% macro script(this, kwargs) %}
 
+//For Search Control
+function getGlobalProperties(prefix) {
+  var keyValues = [], global = window; // window for browser environments
+  for (var prop in global) {
+    if (prop.indexOf(prefix) == 0) // check the prefix
+      if (!prop.endsWith("searchControl"))
+        keyValues.push(prop);
+  }
+  return keyValues[0] // build the string
+}
+
+var feature_group = getGlobalProperties("feature_group");
+
 {{this._parent.get_name()}}.on('draw:created', function (event) {
     var layer = event.layer,
     feature = layer.feature = layer.feature || {}; // Intialize layer.feature
@@ -175,6 +188,7 @@ function add_shape_popup(layer) {
     });
     $('.save').click(function() {
         save_shape_name_desc(layer);
+        window[feature_group]._layers = drawnItems._layers; //For Search Control
         $(this).siblings('.edit').show();
         $(this).siblings('.cancel').hide();
         $(this).hide();
@@ -202,8 +216,73 @@ function save_shape_name_desc(layer) {
 
 {% endmacro %}""")
 
+test = jinja2.Template("""
+
+{% macro header(this, kwargs) %}
+
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+<link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+
+{% endmacro %}
+
+{% macro script(this, kwargs) %}
+
+L.Control.geocoder(position="topleft").addTo({{this._parent.get_name()}})
+
+{% endmacro %}
+
+""")
+
+test2 = jinja2.Template("""
+
+{% macro header(this, kwargs) %}
+
+<script src="https://cdn.jsdelivr.net/npm/leaflet-search@2.9.7/dist/leaflet-search.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-search@2.9.7/dist/leaflet-search.min.css"/>
+
+{% endmacro %}
+
+{% macro script(this, kwargs) %}
+
+var feature_group = L.featureGroup(
+    {}
+).addTo({{this._parent.get_name()}});
+
+var feature_group_searchControl = new L.Control.Search({
+    layer: feature_group,
+    propertyName: 'shape_name',
+    collapsed: true,
+    textPlaceholder: 'Search          ',
+    position:'topleft',
+    initial: false,
+    hideMarkerOnCollapse: true
+});
+
+feature_group_searchControl.on('search:locationfound', function(e) {
+    feature_group.setStyle(function(feature ){
+        return feature.properties.style
+    })
+
+    if(e.layer._popup)
+        e.layer.openPopup();
+})
+
+feature_group_searchControl.on('search:collapsed', function(e) {
+    feature_group.setStyle(function(feature) {
+        return feature.properties.style
+    });
+});
+
+{{this._parent.get_name()}}.addControl(feature_group_searchControl);
+
+{% endmacro %}
+
+""")
+
 
 elements = dict( set_latlng_locate=set_latlng_locate,
                  set_express_locations=set_express_locations,
-                 drawn_element=drawn_element
+                 drawn_element=drawn_element,
+                 #test=test,
+                 #test2=test2,
                )
