@@ -217,22 +217,6 @@ function save_shape_name_desc(layer) {
 
 {% endmacro %}""")
 
-geocoder_control = jinja2.Template("""
-
-{% macro header(this, kwargs) %}
-
-<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
-<link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
-
-{% endmacro %}
-
-{% macro script(this, kwargs) %}
-
-L.Control.geocoder(position="topleft").addTo({{this._parent.get_name()}})
-
-{% endmacro %}
-
-""")
 
 search_control = jinja2.Template("""
 
@@ -281,9 +265,27 @@ feature_group_searchControl.on('search:collapsed', function(e) {
 """)
 
 
+geocoder_control = jinja2.Template("""
+
+{% macro header(this, kwargs) %}
+
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+<link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+
+{% endmacro %}
+
+{% macro script(this, kwargs) %}
+
+L.Control.geocoder(position="topleft").addTo({{this._parent.get_name()}})
+
+{% endmacro %}
+
+""")
+
+
 elements = dict( set_latlng_locate=set_latlng_locate,
                  set_express_locations=set_express_locations,
                  drawn_element=drawn_element,
-                 geocoder_control=geocoder_control,
                  search_control=search_control,
+                 geocoder_control=geocoder_control,
                )
