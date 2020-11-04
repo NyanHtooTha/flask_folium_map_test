@@ -13,7 +13,8 @@ function remove_marker() { if (former_marker){ {{this._parent.get_name()}}.remov
 
 {{this._parent.get_name()}}.on('click', function(e) {
     
-    if (former_marker){ {{this._parent.get_name()}}.removeLayer(former_marker); }
+    //if (former_marker){ {{this._parent.get_name()}}.removeLayer(former_marker); }
+    remove_marker();
     
     icon = L.AwesomeMarkers.icon(
                {"extraClasses": "fa-rotate-0", "icon": "check",
@@ -182,7 +183,8 @@ function add_shape_popup(layer, by_geojson=false) {
         if (by_geojson) {
             $('#shape_name').attr('readonly', true);
             $('#shape_desc').attr('readonly', true);
-            window[feature_group]._layers = drawnItems._layers; //For Search Control
+            //feature_group.addLayer(layer); //use while using "search_control"
+            window[feature_group]._layers = drawnItems._layers; //For Search Control, comment while using "search_control"
         }
     });
 
@@ -209,7 +211,7 @@ function add_shape_popup(layer, by_geojson=false) {
     $('.save').click(function() {
         save_shape_name_desc(layer);
         //feature_group.addLayer(layer); //use while using "search_control"
-        window[feature_group]._layers = drawnItems._layers; //For Search Control
+        window[feature_group]._layers = drawnItems._layers; //For Search Control, comment this while using "search_control"
         $(this).siblings('.edit').show();
         $(this).siblings('.cancel').hide();
         $(this).hide();
