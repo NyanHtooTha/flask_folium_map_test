@@ -98,12 +98,19 @@ def test():
     start_coords = (16.79631, 96.16469)
     map_tem = folium.Map(location=start_coords, zoom_start=14, control_scale=True)
     #Search Control
-    fg = folium.FeatureGroup("Drawn Layer").add_to(map_tem)
+    fg = folium.FeatureGroup("Drawn Layer").add_to(map_tem) #comment this if written under Drawing Feature
     plugins.Search(fg, search_label="shape_name", collapsed=True, placeholder='Search'+' '*10).add_to(map_tem)
-    #el2 = folium.MacroElement().add_to(map_tem)
-    #el2._template = elements["search_control"] #elements["geocoder_control"]
+    #sc = folium.MacroElement().add_to(map_tem)
+    #sc._template = elements["search_control"]
+    #Full Screen
     plugins.Fullscreen().add_to(map_tem)
+    #Locate Control
     plugins.LocateControl().add_to(map_tem)
+    #Add the draw
+    #fg = folium.FeatureGroup("Drawn Layer").add_to(map_tem) #uncomment if Search Control is written under Drawing Feature
+    plugins.Draw(export=True, filename='data.geojson', position='topleft', draw_options=None, edit_options=None).add_to(map_tem)
+    de = folium.MacroElement().add_to(map_tem)
+    de._template = elements["drawn_element"]
     #Mouse position
     fmtr = "function(num) {return L.Util.formatNum(num, 3) + ' º ';};"
     plugins.MousePosition(position='topright', separator=' | ', prefix="Mouse:", \
@@ -111,10 +118,6 @@ def test():
     #Add measure tool
     plugins.MeasureControl(position='bottomleft', primary_length_unit='meters', secondary_length_unit='miles',\
                            primary_area_unit='sqmeters', secondary_area_unit='acres').add_to(map_tem)
-    #Add the draw
-    plugins.Draw(export=True, filename='data.geojson', position='topleft', draw_options=None, edit_options=None).add_to(map_tem)
-    #draw = plugins.Draw(export=True)
-    #draw.add_to(map_tem)
 
     # Add custom basemaps
     for k in basemaps:
@@ -133,8 +136,6 @@ def test():
     #Add minimap
     plugins.MiniMap(tile_layer=basemaps['Google Satellite'], toggle_display=True, width=300, height=300, \
                     zoom_level_offset= -5, minimized=True).add_to(map_tem)
-    el = folium.MacroElement().add_to(map_tem)
-    el._template = elements["drawn_element"]
     map_tem.save('templates/map.html')
     return render_template("test.html")
 
