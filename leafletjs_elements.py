@@ -138,7 +138,7 @@ var feature_group = getGlobalProperties("feature_group"); //comment this while u
     add_shape_popup(layer);
 });
 
-function make_content_html(layer) {
+function make_content_html(layer, by_geojson) {
     var l = layer.toGeoJSON();
     var name = "Shape Name";
     var desc = "Shape Description";
@@ -155,18 +155,38 @@ function make_content_html(layer) {
         desc = "Area Descritption";
     }
 
+    var drawn_by_drawing = '<div><input class="edit" type="button" value="Edit" style="display:none;" />'+
+                           '<input id="okBtn" class="save" type="button" value="Save" />'+
+                           '<input class="cancel" type="button" value="Cancel" style="display:none;" /></div>'
+    var drawn_by_geojson = '<div><input class="edit" type="button" value="Edit" />'+
+                           '<input id="okBtn" class="save" type="button" value="Save" style="display:none;" />'+
+                           '<input class="cancel" type="button" value="Cancel" style="display:none;" /></div>'
+    var BUTTON_STATES = drawn_by_drawing;
+    if (by_geojson)
+       var BUTTON_STATES = drawn_by_geojson;
     var content_html = `<span><b>${name}</b></span><br/>`+
                        '<input id="shape_name" type="text" size="25" /><br/><br/>'+
                        `<span><b>${desc}<b/></span><br/>`+
                        '<textarea id="shape_desc" cols="25" rows="5" style="resize:none;" ></textarea><br/><br/>'+
-                       '<div><input class="edit" type="button" value="Edit" style="display:none;" />'+
-                       '<input id="okBtn" class="save" type="button" value="Save" />'+
-                       '<input class="cancel" type="button" value="Cancel" style="display:none;" /></div>'
+                        BUTTON_STATES
     return content_html;
 }
 
-function add_shape_popup(layer) {
-     var content_html = make_content_html(layer);
+function add_shape_popup(layer, by_geojson=false) {
+
+    layer.on("popupopen", function () {
+        content.focus();
+        $('#shape_name').val(layer.feature.properties.shape_name);
+        $('#shape_desc').val(layer.feature.properties.shape_desc);
+        //content.focus()
+        if (by_geojson) {
+            $('#shape_name').attr('readonly', true);
+            $('#shape_desc').attr('readonly', true);
+            window[feature_group]._layers = drawnItems._layers; //For Search Control
+        }
+    });
+
+     var content_html = make_content_html(layer, by_geojson);
      var content = document.createElement("div");
      content.innerHTML = content_html;
      layer.bindPopup(content).openPopup();
@@ -184,7 +204,7 @@ function add_shape_popup(layer) {
         $(this).siblings('.edit').show();
         $(this).siblings('.save').hide();
         $(this).hide();
-        //layer.closePopup();
+        layer.closePopup();
     });
     $('.save').click(function() {
         save_shape_name_desc(layer);
@@ -198,12 +218,6 @@ function add_shape_popup(layer) {
     //document.getElementById("okBtn").addEventListener("click", function() {
     //    save_shape_name_desc(layer);
     //}, false);
-
-    layer.on("popupopen", function () {
-        $('#shape_name').val(layer.feature.properties.shape_name);
-        $('#shape_desc').val(layer.feature.properties.shape_desc);
-        content.focus()
-    });
 }
 
 function save_shape_name_desc(layer) {
@@ -211,7 +225,7 @@ function save_shape_name_desc(layer) {
      layer.feature.properties.shape_desc = document.getElementById("shape_desc").value;
      document.getElementById("shape_name").readOnly = "true";
      document.getElementById("shape_desc").readOnly = "true";
-     //layer.closePopup();
+     layer.closePopup();
      //console.log(layer.toGeoJSON());
 }
 
