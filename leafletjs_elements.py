@@ -397,7 +397,7 @@ geocoder_control = jinja2.Template("""
 {% macro header(this, kwargs) %}
 
 <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
-<link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+<link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet-control-geocoder@1.13.0/dist/Control.Geocoder.css" />
 
 {% endmacro %}
 
