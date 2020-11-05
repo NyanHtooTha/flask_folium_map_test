@@ -131,7 +131,7 @@ draw_control = jinja2.Template("""
             cursor: pointer;
             font-size: 12px;
             text-decoration: none;
-            top: 90px;
+            top: 110px;
          }
 
         .leaflet-control-search .search-button {
@@ -402,6 +402,10 @@ geocoder_control = jinja2.Template("""
 {% endmacro %}
 
 {% macro script(this, kwargs) %}
+
+L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
+}).addTo({{this._parent.get_name()}});
 
 L.Control.geocoder(position="topleft").addTo({{this._parent.get_name()}})
 

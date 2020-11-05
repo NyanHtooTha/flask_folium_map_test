@@ -146,6 +146,8 @@ def test():
     #Add minimap
     plugins.MiniMap(tile_layer=basemaps['Google Satellite'], toggle_display=True, width=300, height=300, \
                     zoom_level_offset= -5, minimized=True).add_to(map_tem)
+    gc = folium.MacroElement().add_to(map_tem)
+    gc._template = elements["geocoder_control"]
     map_tem.save('templates/map.html')
     return render_template("test.html")
 
