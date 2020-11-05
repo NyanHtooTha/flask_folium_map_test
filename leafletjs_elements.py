@@ -403,11 +403,15 @@ geocoder_control = jinja2.Template("""
 
 {% macro script(this, kwargs) %}
 
-L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
-}).addTo({{this._parent.get_name()}});
+//L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+//    attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
+//}).addTo({{this._parent.get_name()}});
 
-L.Control.geocoder(position="topleft").addTo({{this._parent.get_name()}})
+lgc = L.Control.geocoder(position="topleft").addTo({{this._parent.get_name()}})
+
+lgc.on('markgeocode', function(e) {
+    console.log(e);
+});
 
 {% endmacro %}
 
