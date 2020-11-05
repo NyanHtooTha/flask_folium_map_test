@@ -110,6 +110,98 @@ set_express_locations = jinja2.Template("""
 {% endmacro %}""")
 
 
+draw_control = jinja2.Template("""
+
+{% macro header(this, kwargs) %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.2/leaflet.draw.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.2/leaflet.draw.css"/>
+
+<style>
+        #export {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            z-index: 999;
+            background: white;
+            color: black;
+            padding: 6px;
+            border-radius: 4px;
+            font-family: 'Helvetica Neue';
+            cursor: pointer;
+            font-size: 12px;
+            text-decoration: none;
+            top: 90px;
+         }
+</style>
+
+{% endmacro %}
+
+{% macro html(this, kwargs) %}
+
+<a href='#' id='export'>Export</a>
+
+{% endmacro %}
+
+{% macro script(this, kwargs) %}
+
+var options = { position: "topleft",
+                draw: {},
+                edit: {},
+               }
+
+// FeatureGroup is to store editable layers.
+
+var drawnItems = new L.featureGroup().addTo({{this._parent.get_name()}});
+
+options.edit.featureGroup = drawnItems;
+
+var draw_control = new L.Control.Draw(options).addTo({{this._parent.get_name()}});
+
+{{this._parent.get_name()}}.on(L.Draw.Event.CREATED, function(e) {
+    var layer = e.layer,
+    type = e.layerType;
+
+    //var coords = JSON.stringify(layer.toGeoJSON());
+
+    //layer.on('click', function() {
+    //      alert(coords);
+    //      console.log(coords);
+    //  });
+
+    drawnItems.addLayer(layer);
+});
+
+{{this._parent.get_name()}}.on('draw:created', function(e) {
+    var layer = e.layer,
+    feature = layer.feature = layer.feature || {};
+    feature.type = feature.type || "Feature";
+    var props = feature.properties = feature.properties || {};
+    props.shape_name = null;
+    props.shape_desc = null;
+    drawnItems.addLayer(layer);
+    add_shape_popup(layer);
+
+    //drawnItems.addLayer(e.layer);
+});
+
+document.getElementById('export').onclick = function(e) {
+    var data = drawnItems.toGeoJSON();
+    var convertedData = 'text/json;charset=utf-8,'
+                        + encodeURIComponent(JSON.stringify(data));
+    document.getElementById('export').setAttribute(
+        'href', 'data:' + convertedData
+    );
+    document.getElementById('export').setAttribute(
+        'download', "data.geojson"
+    );
+}
+
+{% endmacro %}
+
+""")
+
+
 drawn_element = jinja2.Template("""
 
 {% macro script(this, kwargs) %}
@@ -125,8 +217,13 @@ function getGlobalProperties(prefix) {
   return keyValues[0] // build the string
 }
 
-var feature_group = getGlobalProperties("feature_group"); //comment this while using "search_control"
+if (!window["feature_group"])
+    var feature_group = getGlobalProperties("feature_group"); //comment this while using "search_control"
 
+/*
+//Comment this while using "draw_control"
+//"draw_control" has already added this feature
+//Only for plugins.Draw + "drawn_element"
 {{this._parent.get_name()}}.on('draw:created', function (event) {
     var layer = event.layer,
     feature = layer.feature = layer.feature || {}; // Intialize layer.feature
@@ -138,6 +235,7 @@ var feature_group = getGlobalProperties("feature_group"); //comment this while u
     drawnItems.addLayer(layer);
     add_shape_popup(layer);
 });
+*/
 
 function make_content_html(layer, by_geojson) {
     var l = layer.toGeoJSON();
@@ -183,8 +281,10 @@ function add_shape_popup(layer, by_geojson=false) {
         if (by_geojson) {
             $('#shape_name').attr('readonly', true);
             $('#shape_desc').attr('readonly', true);
-            //feature_group.addLayer(layer); //use while using "search_control"
-            window[feature_group]._layers = drawnItems._layers; //For Search Control, comment while using "search_control"
+            if (typeof feature_group != "string")
+                feature_group.addLayer(layer); //use while using "search_control", comment while using "draw_control"
+            if (typeof feature_group != "object")
+                window[feature_group]._layers = drawnItems._layers; //For Search Control, comment while using "search_control"
         }
     });
 
@@ -210,8 +310,10 @@ function add_shape_popup(layer, by_geojson=false) {
     });
     $('.save').click(function() {
         save_shape_name_desc(layer);
-        //feature_group.addLayer(layer); //use while using "search_control"
-        window[feature_group]._layers = drawnItems._layers; //For Search Control, comment this while using "search_control"
+        if (typeof feature_group != "string")
+            feature_group.addLayer(layer); //use while using "search_control", comment while using "draw_control"
+        if (typeof feature_group != "object")
+            window[feature_group]._layers = drawnItems._layers; //For Search Control, comment this while using "search_control"
         $(this).siblings('.edit').show();
         $(this).siblings('.cancel').hide();
         $(this).hide();
@@ -301,6 +403,7 @@ L.Control.geocoder(position="topleft").addTo({{this._parent.get_name()}})
 
 elements = dict( set_latlng_locate=set_latlng_locate,
                  set_express_locations=set_express_locations,
+                 draw_control=draw_control,
                  drawn_element=drawn_element,
                  search_control=search_control,
                  geocoder_control=geocoder_control,
