@@ -133,6 +133,15 @@ draw_control = jinja2.Template("""
             text-decoration: none;
             top: 90px;
          }
+
+        .leaflet-control-search .search-button {
+            display: block;
+            float: left;
+            width: 26px;
+            height: 26px;
+            background: url("https://cdn.jsdelivr.net/npm/leaflet-search@2.9.7/images/search-icon.png") no-repeat 2px 2px #fff;
+            border-radius: 4px;
+         }
 </style>
 
 {% endmacro %}
