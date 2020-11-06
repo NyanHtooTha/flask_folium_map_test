@@ -141,7 +141,10 @@ draw_control = jinja2.Template("""
             height: 26px;
             background: url("https://cdn.jsdelivr.net/npm/leaflet-search@2.9.7/images/search-icon.png") no-repeat 2px 2px #fff;
             border-radius: 4px;
+            text-align: center;
          }
+         <!--> .ClassToOverrideBorders .ClassWithBorders { border: 0;} -->
+         .leaflet-container .leaflet-control-search { margin-left: 8px; }
 </style>
 
 {% endmacro %}

@@ -98,8 +98,8 @@ def test():
     start_coords = (16.79631, 96.16469)
     map_tem = folium.Map(location=start_coords, zoom_start=14, control_scale=True)
     #Search Control
-    fg = folium.FeatureGroup("Drawn Layer").add_to(map_tem) #comment this if written under Drawing Feature
-    plugins.Search(fg, search_label="shape_name", collapsed=True, placeholder='Search'+' '*10).add_to(map_tem)
+    #fg = folium.FeatureGroup("Drawn Layer").add_to(map_tem) #comment this if written under Drawing Feature
+    #plugins.Search(fg, search_label="shape_name", collapsed=True, placeholder='Search'+' '*10).add_to(map_tem)
     #sc = folium.MacroElement().add_to(map_tem)
     #sc._template = elements["search_control"] #not apper "Drawn Layer" on layer control
     #Full Screen
@@ -107,7 +107,8 @@ def test():
     #Locate Control
     plugins.LocateControl().add_to(map_tem)
     #Add the draw
-    #fg = folium.FeatureGroup("Drawn Layer").add_to(map_tem) #uncomment if Search Control is written under Drawing Feature
+    fg = folium.FeatureGroup("Drawn Layer").add_to(map_tem) #uncomment if Search Control is written under Drawing Feature
+    plugins.Search(fg, search_label="shape_name", collapsed=True, placeholder='Search'+' '*10).add_to(map_tem)
     #plugins.Draw(export=True, filename='data.geojson', position='topleft', draw_options=None, edit_options=None).add_to(map_tem)
     dc = folium.MacroElement().add_to(map_tem)
     de = folium.MacroElement().add_to(map_tem)
