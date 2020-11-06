@@ -151,6 +151,13 @@ def test():
     gc._template = elements["geocoder_control"]
     esri = folium.MacroElement().add_to(map_tem)
     esri._template = elements["esri_control"]
+
+    #Style Override and Call Last must be on Last Line before Return
+    style_override = folium.MacroElement().add_to(map_tem)
+    style_override._template = elements["style_override"]
+    call_last = folium.MacroElement().add_to(map_tem)
+    call_last._template = elements["call_last"]
+
     map_tem.save('templates/map.html')
     return render_template("test.html")
 

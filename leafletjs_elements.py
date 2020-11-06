@@ -110,12 +110,9 @@ set_express_locations = jinja2.Template("""
 {% endmacro %}""")
 
 
-draw_control = jinja2.Template("""
+style_override = jinja2.Template("""
 
 {% macro header(this, kwargs) %}
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.2/leaflet.draw.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.2/leaflet.draw.css"/>
 
 <style>
         #export {
@@ -152,6 +149,18 @@ draw_control = jinja2.Template("""
 {% macro html(this, kwargs) %}
 
 <a href='#' id='export'>Export</a>
+
+{% endmacro %}
+
+""")
+
+
+draw_control = jinja2.Template("""
+
+{% macro header(this, kwargs) %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.2/leaflet.draw.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.2/leaflet.draw.css"/>
 
 {% endmacro %}
 
@@ -214,7 +223,7 @@ document.getElementById('export').onclick = function(e) {
 """)
 
 
-drawn_element = jinja2.Template("""
+call_last = jinja2.Template("""
 
 {% macro script(this, kwargs) %}
 
@@ -231,6 +240,15 @@ function getGlobalProperties(prefix) {
 
 if (!window["feature_group"])
     var feature_group = getGlobalProperties("feature_group"); //comment this while using "search_control"
+
+{% endmacro %}
+
+""")
+
+
+drawn_element = jinja2.Template("""
+
+{% macro script(this, kwargs) %}
 
 /*
 //Comment this while using "draw_control"
@@ -532,4 +550,6 @@ elements = dict( set_latlng_locate=set_latlng_locate,
                  search_control=search_control,
                  geocoder_control=geocoder_control,
                  esri_control=esri_control,
+                 style_override=style_override,
+                 call_last=call_last,
                )
