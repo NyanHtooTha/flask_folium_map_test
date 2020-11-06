@@ -506,9 +506,8 @@ map = {{this._parent.get_name()}};
 var esriSearchControl = new L.esri.Geocoding.geosearch().addTo(map);
 
 var results = new L.LayerGroup().addTo(map);
-var d;
+
 esriSearchControl.on('results', function(data){
-    d = data;
     results.clearLayers();
     for (var i = data.results.length - 1; i >= 0; i--) {
         results.addLayer( L.marker(data.results[i].latlng)
@@ -516,7 +515,6 @@ esriSearchControl.on('results', function(data){
                            .addTo(map)
                         );
     }
-    console.log(data);
   });
 
 {% endmacro %}
