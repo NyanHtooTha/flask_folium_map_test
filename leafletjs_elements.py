@@ -475,10 +475,60 @@ map.on('click', function(e) {
 """)
 
 
+esri_control = jinja2.Template("""
+
+{% macro header(this, kwargs) %}
+
+<!-- Load Esri Leaflet from CDN -->
+<!-- <script src="https://unpkg.com/esri-leaflet@2.5.0/dist/esri-leaflet.js"
+    integrity="sha512-ucw7Grpc+iEQZa711gcjgMBnmd9qju1CICsRaryvX7HJklK0pGl/prxKvtHwpgm5ZHdvAil7YPxI1oWPOWK3UQ=="
+    crossorigin=""></script> -->
+
+<!-- Load Esri Leaflet Geocoder from CDN -->
+<!-- <link rel="stylesheet" href="https://unpkg.com/esri-leaflet-geocoder@2.3.3/dist/esri-leaflet-geocoder.css"
+    integrity="sha512-IM3Hs+feyi40yZhDH6kV8vQMg4Fh20s9OzInIIAc4nx7aMYMfo+IenRUekoYsHZqGkREUgx0VvlEsgm7nCDW9g=="
+    crossorigin=""> -->
+<!-- <script src="https://unpkg.com/esri-leaflet-geocoder@2.3.3/dist/esri-leaflet-geocoder.js"
+    integrity="sha512-HrFUyCEtIpxZloTgEKKMq4RFYhxjJkCiF5sDxuAokklOeZ68U2NPfh4MFtyIVWlsKtVbK5GD2/JzFyAfvT5ejA=="
+    crossorigin=""></script> -->
+
+
+<script src="https://unpkg.com/esri-leaflet/dist/esri-leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/esri-leaflet-geocoder@2.3.3/dist/esri-leaflet-geocoder.css">
+<script src="https://unpkg.com/esri-leaflet-geocoder/dist/esri-leaflet-geocoder.js"></script>
+
+{% endmacro %}
+
+{% macro script(this, kwargs) %}
+
+map = {{this._parent.get_name()}};
+
+var esriSearchControl = new L.esri.Geocoding.geosearch().addTo(map);
+
+var results = new L.LayerGroup().addTo(map);
+var d;
+esriSearchControl.on('results', function(data){
+    d = data;
+    results.clearLayers();
+    for (var i = data.results.length - 1; i >= 0; i--) {
+        results.addLayer( L.marker(data.results[i].latlng)
+                           .bindPopup(data.results[i].text) //bindPopup(data.text)
+                           .addTo(map)
+                        );
+    }
+    console.log(data);
+  });
+
+{% endmacro %}
+
+""")
+
+
 elements = dict( set_latlng_locate=set_latlng_locate,
                  set_express_locations=set_express_locations,
                  draw_control=draw_control,
                  drawn_element=drawn_element,
                  search_control=search_control,
                  geocoder_control=geocoder_control,
+                 esri_control=esri_control,
                )

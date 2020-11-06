@@ -148,6 +148,8 @@ def test():
                     zoom_level_offset= -5, minimized=True).add_to(map_tem)
     gc = folium.MacroElement().add_to(map_tem)
     gc._template = elements["geocoder_control"]
+    esri = folium.MacroElement().add_to(map_tem)
+    esri._template = elements["esri_control"]
     map_tem.save('templates/map.html')
     return render_template("test.html")
 
