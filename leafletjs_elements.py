@@ -284,6 +284,10 @@ function make_content_html(layer, by_geojson) {
         desc = "Area Descritption";
     }
 
+    var content_html = `<span><b>${name}</b></span><br/>`+
+                       '<input id="shape_name" type="text" size="25" /><br/><br/>'+
+                       `<span><b>${desc}<b/></span><br/>`+
+                       '<textarea id="shape_desc" cols="25" rows="5" style="resize:none;" ></textarea><br/><br/>'
     var drawn_by_drawing = '<div><input class="edit" type="button" value="Edit" style="display:none;" />'+
                            '<input id="okBtn" class="save" type="button" value="Save" />'+
                            '<input class="cancel" type="button" value="Cancel" style="display:none;" /></div>'
@@ -291,14 +295,13 @@ function make_content_html(layer, by_geojson) {
                            '<input id="okBtn" class="save" type="button" value="Save" style="display:none;" />'+
                            '<input class="cancel" type="button" value="Cancel" style="display:none;" /></div>'
     var BUTTON_STATES = drawn_by_drawing;
-    if (by_geojson)
+    if (by_geojson) {
        var BUTTON_STATES = drawn_by_geojson;
-    var content_html = `<span><b>${name}</b></span><br/>`+
-                       '<input id="shape_name" type="text" size="25" /><br/><br/>'+
-                       `<span><b>${desc}<b/></span><br/>`+
-                       '<textarea id="shape_desc" cols="25" rows="5" style="resize:none;" ></textarea><br/><br/>'+
-                        BUTTON_STATES
-    return content_html;
+       if (by_geojson=="edit")
+           return content_html+BUTTON_STATES;
+       return content_html;
+    }
+    return content_html+BUTTON_STATES;
 }
 
 function add_shape_popup(layer, by_geojson=false) {
