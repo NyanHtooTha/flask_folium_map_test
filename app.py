@@ -158,6 +158,15 @@ def test():
     call_last = folium.MacroElement().add_to(map_tem)
     call_last._template = elements["call_last"]
 
+    #Test with GeoJSON
+    a = folium.GeoJson(
+        {"type":"FeatureCollection","features":[{"type":"Feature","properties":{"shape_name":"A","shape_desc":"This is AAA"},"geometry":{"type":"Polygon","coordinates":[[[96.152344,16.789258],[96.152344,16.802076],[96.177149,16.802076],[96.177149,16.789258],[96.152344,16.789258]]]}}]})
+    b = folium.GeoJson(
+        {"type":"FeatureCollection","features":[{"type":"Feature","properties":{"shape_name":"B","shape_desc":"This is BBB"},"geometry":{"type":"Polygon","coordinates":[[[96.128998,16.821302],[96.128998,16.856463],[96.160583,16.856463],[96.160583,16.821302],[96.128998,16.821302]]]}}]})
+    #folium.features.GeoJsonPopup(fields=['shape_name', 'shape_desc'], labels=False).add_to(a)
+    fg.add_child(a)
+    fg.add_child(b)
+
     map_tem.save('templates/map.html')
     return render_template("test.html")
 

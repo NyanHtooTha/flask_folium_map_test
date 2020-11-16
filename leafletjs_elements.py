@@ -240,6 +240,15 @@ function getGlobalProperties(prefix) {
 
 if (!window["feature_group"])
     var feature_group = getGlobalProperties("feature_group"); //comment this while using "search_control"
+    // Shape Name, Description and Edit-Save-Cancle Button for added GeoJSON
+    var fg = window[feature_group];
+    if (Object.keys(fg._layers).length) {
+        fg.getLayers().forEach( function(layer) {
+            layer.getLayers().forEach( function(layer) {
+                add_shape_popup(layer, "edit"); //by_geojson = true or "edit" 
+            });
+        });
+    }
 
 {% endmacro %}
 
@@ -307,50 +316,60 @@ function make_content_html(layer, by_geojson) {
 function add_shape_popup(layer, by_geojson=false) {
 
     layer.on("popupopen", function () {
-        content.focus();
+        //content.focus();
         $('#shape_name').val(layer.feature.properties.shape_name);
         $('#shape_desc').val(layer.feature.properties.shape_desc);
-        //content.focus()
+        content.focus()
         if (by_geojson) {
             $('#shape_name').attr('readonly', true);
             $('#shape_desc').attr('readonly', true);
+            /* Make Comment
             if (typeof feature_group != "string")
                 feature_group.addLayer(layer); //use while using "search_control", comment while using "draw_control"
             if (typeof feature_group != "object")
-                window[feature_group]._layers = drawnItems._layers; //For Search Control, comment while using "search_control"
+                //window[feature_group]._layers = drawnItems._layers; //For Search Control, comment while using "search_control"
+                window[feature_group].addLayer(layer);
+            */
         }
+
+        $('.edit').click(function() {
+            $('#shape_name').attr('readonly', false);
+            $('#shape_desc').attr('readonly', false);
+            $(this).hide().siblings('.save, .cancel').show();
+        });
+        $('.cancel').click(function() {
+            $('#shape_name').val(layer.feature.properties.shape_name);
+            $('#shape_desc').val(layer.feature.properties.shape_desc);
+            $('#shape_name').attr('readonly', true);
+            $('#shape_desc').attr('readonly', true);
+            $(this).siblings('.edit').show();
+            $(this).siblings('.save').hide();
+            $(this).hide();
+            layer.closePopup();
+        });
+        $('.save').click(function() {
+            save_shape_name_desc(layer);
+            if(!by_geojson) {
+            if (typeof feature_group != "string")
+                feature_group.addLayer(layer); //use while using "search_control", comment while using "draw_control"
+            if (typeof feature_group != "object")
+                //window[feature_group]._layers = drawnItems._layers; //For Search Control, comment while using "search_control"
+                window[feature_group].addLayer(layer);
+            }
+            $(this).siblings('.edit').show();
+            $(this).siblings('.cancel').hide();
+            $(this).hide();
+        });
     });
 
-     var content_html = make_content_html(layer, by_geojson);
-     var content = document.createElement("div");
-     content.innerHTML = content_html;
-     layer.bindPopup(content).openPopup();
-
-    $('.edit').click(function() {
-        $('#shape_name').attr('readonly', false);
-        $('#shape_desc').attr('readonly', false);
-        $(this).hide().siblings('.save, .cancel').show();
-    });
-    $('.cancel').click(function() {
-        $('#shape_name').val(layer.feature.properties.shape_name);
-        $('#shape_desc').val(layer.feature.properties.shape_desc);
-        $('#shape_name').attr('readonly', true);
-        $('#shape_desc').attr('readonly', true);
-        $(this).siblings('.edit').show();
-        $(this).siblings('.save').hide();
-        $(this).hide();
-        layer.closePopup();
-    });
-    $('.save').click(function() {
-        save_shape_name_desc(layer);
-        if (typeof feature_group != "string")
-            feature_group.addLayer(layer); //use while using "search_control", comment while using "draw_control"
-        if (typeof feature_group != "object")
-            window[feature_group]._layers = drawnItems._layers; //For Search Control, comment this while using "search_control"
-        $(this).siblings('.edit').show();
-        $(this).siblings('.cancel').hide();
-        $(this).hide();
-    });
+    var content_html = make_content_html(layer, by_geojson);
+    var content = document.createElement("div");
+    content.innerHTML = content_html;
+    if(!by_geojson) {
+        layer.bindPopup(content).openPopup();
+    } else {
+        layer.bindPopup(content);
+    }
 
     //document.getElementById("okBtn").addEventListener("click", function() {
     //    save_shape_name_desc(layer);
