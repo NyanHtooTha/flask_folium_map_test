@@ -294,15 +294,15 @@ function make_content_html(layer, by_geojson) {
     }
 
     var content_html = `<span><b>${name}</b></span><br/>`+
-                       '<input id="shape_name" type="text" size="25" /><br/><br/>'+
+                       '<input class="shape_name" type="text" size="25" /><br/><br/>'+
                        `<span><b>${desc}<b/></span><br/>`+
-                       '<textarea id="shape_desc" cols="25" rows="5" style="resize:none;" ></textarea><br/><br/>'
-    var drawn_by_drawing = '<div><input class="edit" type="button" value="Edit" style="display:none;" />'+
-                           '<input id="okBtn" class="save" type="button" value="Save" />'+
-                           '<input class="cancel" type="button" value="Cancel" style="display:none;" /></div>'
-    var drawn_by_geojson = '<div><input class="edit" type="button" value="Edit" />'+
-                           '<input id="okBtn" class="save" type="button" value="Save" style="display:none;" />'+
-                           '<input class="cancel" type="button" value="Cancel" style="display:none;" /></div>'
+                       '<textarea class="shape_desc" cols="25" rows="5" style="resize:none;" ></textarea><br/><br/>'
+    var drawn_by_drawing = '<div><input class="edit_name_desc" type="button" value="Edit" style="display:none;" />'+
+                           '<input class="save_name_desc" type="button" value="Save" />&nbsp'+
+                           '<input class="cancel_name_desc" type="button" value="Cancel" style="display:none;" /></div>'
+    var drawn_by_geojson = '<div><input class="edit_name_desc" type="button" value="Edit" />'+
+                           '<input class="save_name_desc" type="button" value="Save" style="display:none;" />&nbsp'+
+                           '<input class="cancel_name_desc" type="button" value="Cancel" style="display:none;" /></div>'
     var BUTTON_STATES = drawn_by_drawing;
     if (by_geojson) {
        var BUTTON_STATES = drawn_by_geojson;
@@ -317,12 +317,12 @@ function add_shape_popup(layer, by_geojson=false) {
 
     layer.on("popupopen", function () {
         //content.focus();
-        $('#shape_name').val(layer.feature.properties.shape_name);
-        $('#shape_desc').val(layer.feature.properties.shape_desc);
+        $('.shape_name').val(layer.feature.properties.shape_name);
+        $('.shape_desc').val(layer.feature.properties.shape_desc);
         content.focus()
         if (by_geojson) {
-            $('#shape_name').attr('readonly', true);
-            $('#shape_desc').attr('readonly', true);
+            $('.shape_name').attr('readonly', true);
+            $('.shape_desc').attr('readonly', true);
             /* Make Comment
             if (typeof feature_group != "string")
                 feature_group.addLayer(layer); //use while using "search_control", comment while using "draw_control"
@@ -332,23 +332,30 @@ function add_shape_popup(layer, by_geojson=false) {
             */
         }
 
-        $('.edit').click(function() {
-            $('#shape_name').attr('readonly', false);
-            $('#shape_desc').attr('readonly', false);
-            $(this).hide().siblings('.save, .cancel').show();
+        $('.edit_name_desc').click(function() {
+            $('.shape_name').attr('readonly', false);
+            $('.shape_desc').attr('readonly', false);
+            $(this).hide().siblings('.save_name_desc, .cancel_name_desc').show();
         });
-        $('.cancel').click(function() {
-            $('#shape_name').val(layer.feature.properties.shape_name);
-            $('#shape_desc').val(layer.feature.properties.shape_desc);
-            $('#shape_name').attr('readonly', true);
-            $('#shape_desc').attr('readonly', true);
-            $(this).siblings('.edit').show();
-            $(this).siblings('.save').hide();
+        $('.cancel_name_desc').click(function() {
+            $('.shape_name').val(layer.feature.properties.shape_name);
+            $('.shape_desc').val(layer.feature.properties.shape_desc);
+            $('.shape_name').attr('readonly', true);
+            $('.shape_desc').attr('readonly', true);
+            $(this).siblings('.edit_name_desc').show();
+            $(this).siblings('.save_name_desc').hide();
             $(this).hide();
             layer.closePopup();
         });
-        $('.save').click(function() {
-            save_shape_name_desc(layer);
+        $('.save_name_desc').click(function() {
+            //save_shape_name_desc(layer);
+            layer.feature.properties.shape_name = $('.shape_name').val();
+            layer.feature.properties.shape_desc = $('.shape_desc').val();
+            $(this).siblings('.edit_name_desc').show();
+            $(this).siblings('.cancel_name_desc').hide();
+            $(this).hide();
+            $('.shape_name').attr('readonly', true);
+            $('.shape_desc').attr('readonly', true);
             if(!by_geojson) {
             if (typeof feature_group != "string")
                 feature_group.addLayer(layer); //use while using "search_control", comment while using "draw_control"
@@ -356,14 +363,12 @@ function add_shape_popup(layer, by_geojson=false) {
                 //window[feature_group]._layers = drawnItems._layers; //For Search Control, comment while using "search_control"
                 window[feature_group].addLayer(layer);
             }
-            $(this).siblings('.edit').show();
-            $(this).siblings('.cancel').hide();
-            $(this).hide();
+            layer.closePopup();
         });
     });
 
     var content_html = make_content_html(layer, by_geojson);
-    var content = document.createElement("div");
+    var content = L.DomUtil.create("div"); //document.createElement("div");
     content.innerHTML = content_html;
     if(!by_geojson) {
         layer.bindPopup(content).openPopup();
@@ -376,6 +381,7 @@ function add_shape_popup(layer, by_geojson=false) {
     //}, false);
 }
 
+/* Make Comment because of Using Class instead of Id
 function save_shape_name_desc(layer) {
      layer.feature.properties.shape_name = document.getElementById("shape_name").value;
      layer.feature.properties.shape_desc = document.getElementById("shape_desc").value;
@@ -384,6 +390,7 @@ function save_shape_name_desc(layer) {
      layer.closePopup();
      //console.log(layer.toGeoJSON());
 }
+*/
 
 {% endmacro %}""")
 
