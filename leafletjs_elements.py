@@ -59,10 +59,18 @@ function remove_marker() { if (former_marker){ {{this._parent.get_name()}}.remov
 
 set_express_locations = jinja2.Template("""
 
+{% macro header(this, kwargs) %}
+
+<script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css"/>
+
+{% endmacro %}
+
 {% macro script(this, kwargs) %}
 
     parentWindow = window.parent;
     var sender_marker=false, receiver_marker=false;
+    var sender_lat, sender_lng, receiver_lat, receiver_lng;
 
     {{this._parent.get_name()}}.on('click', function(e) {
         function get_icon(color) {
@@ -76,11 +84,12 @@ set_express_locations = jinja2.Template("""
     var data = lat + ", " + lng;
     if (!sender_marker) {
         var icon = get_icon('green');
-        var sender_marker = L.marker().setLatLng(e.latlng).setIcon(icon).addTo({{this._parent.get_name()}});
+        sender_marker = L.marker().setLatLng(e.latlng).setIcon(icon).addTo({{this._parent.get_name()}});
         sender_marker.bindPopup("Latitude: " + lat + "<br>Longitude: " + lng );
 
         setTimeout( function() {
             parentWindow.document.getElementById("sender_info-location").value = data;
+            sender_lat = lat; sender_lng = lng;
         }, 2000);
 
         sender_marker.on('dblclick', function(e) {
@@ -96,6 +105,7 @@ set_express_locations = jinja2.Template("""
 
         setTimeout( function() {
             parentWindow.document.getElementById("receiver_info-location").value = data;
+            receiver_lat = lat; receiver_lng = lng;
         }, 2000);
 
         receiver_marker.on('dblclick', function(e) {
@@ -104,7 +114,44 @@ set_express_locations = jinja2.Template("""
             receiver_marker = false;
         });
     }
-    else {}
+    else {
+
+    /*
+    L.Routing.control({ waypoints: [L.latLng(sender_lat, sender_lng),
+                                    L.latLng(receiver_lat, receiver_lng)],
+                        routeWhileDragging: true,
+                        collapsible: true,
+                        show: false
+                      }).addTo({{this._parent.get_name()}});
+    */
+
+    const waypoints = [{ lat: sender_lat,
+                         lng: sender_lng
+                       },
+                       { lat: receiver_lat,
+                         lng: receiver_lng
+                       }];
+    const routingControl = L.Routing.control({
+        // router: new L.Routing.OSRMv1({
+        //   serviceUrl: ROUTER_SERVICE_URL
+        // }),
+        plan: new L.Routing.plan([], {
+            addWaypoints: false,
+            draggableWaypoints: false,
+            createMarker: () => undefined
+        }),
+        lineOptions: {
+            addWaypoints: false
+        },
+        collapsible: true,
+        show: false
+        });
+
+        {{this._parent.get_name()}}.addControl(routingControl);
+
+        routingControl.setWaypoints(waypoints);
+
+    }
 });
 
 {% endmacro %}""")
