@@ -71,6 +71,7 @@ set_express_locations = jinja2.Template("""
     parentWindow = window.parent;
     var sender_marker=false, receiver_marker=false;
     var sender_lat, sender_lng, receiver_lat, receiver_lng;
+    var routingControl;
 
     {{this._parent.get_name()}}.on('click', function(e) {
         function get_icon(color) {
@@ -96,6 +97,10 @@ set_express_locations = jinja2.Template("""
             {{this._parent.get_name()}}.removeLayer(e.target);
             parentWindow.document.getElementById("sender_info-location").value = "";
             sender_marker = false;
+            if(routingControl) {
+                {{this._parent.get_name()}}.removeControl(routingControl);
+                routingControl = null;
+            }
         });
     }
     else if (!receiver_marker) {
@@ -112,6 +117,10 @@ set_express_locations = jinja2.Template("""
             {{this._parent.get_name()}}.removeLayer(e.target);
             parentWindow.document.getElementById("receiver_info-location").value = "";
             receiver_marker = false;
+            if(routingControl) {
+                {{this._parent.get_name()}}.removeControl(routingControl);
+                routingControl = null;
+            }
         });
     }
     else {
@@ -125,13 +134,13 @@ set_express_locations = jinja2.Template("""
                       }).addTo({{this._parent.get_name()}});
     */
 
-    const waypoints = [{ lat: sender_lat,
+    var waypoints = [{ lat: sender_lat,
                          lng: sender_lng
                        },
                        { lat: receiver_lat,
                          lng: receiver_lng
                        }];
-    const routingControl = L.Routing.control({
+    routingControl = L.Routing.control({
         // router: new L.Routing.OSRMv1({
         //   serviceUrl: ROUTER_SERVICE_URL
         // }),
