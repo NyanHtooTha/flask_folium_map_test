@@ -7,7 +7,7 @@ basemaps = {
              tiles = 'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
              attr = 'Google Maps',
              name = 'Google Maps',
-             overlay = True,
+             overlay = False,
              control = True,
              show = False
             ),
@@ -16,7 +16,7 @@ basemaps = {
              tiles = 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
              attr = 'Google Satellite',
              name = 'Google Satellite',
-             overlay = True,
+             overlay = False,
              control = True,
              show = False,
             ),
@@ -25,7 +25,7 @@ basemaps = {
              tiles = 'https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',
              attr = 'Google Terrain',
              name = 'Google Terrain',
-             overlay = True,
+             overlay = False,
              control = True,
              show = False
             ),
@@ -34,7 +34,7 @@ basemaps = {
              tiles = 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
              attr = 'Google Satellite Hybrid',
              name = 'Google Satellite Hybrid',
-             overlay = True,
+             overlay = False,
              control = True,
              show = False
             ),
@@ -43,7 +43,7 @@ basemaps = {
              tiles = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
              attr = 'Esri',
              name = 'Esri Satellite',
-             overlay = True,
+             overlay = False,
              control = True,
              show = False
             )
