@@ -64,6 +64,13 @@ set_express_locations = jinja2.Template("""
 <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css"/>
 
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+<link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet-control-geocoder@1.13.0/dist/Control.Geocoder.css" />
+
+<script src="https://unpkg.com/esri-leaflet/dist/esri-leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/esri-leaflet-geocoder@2.3.3/dist/esri-leaflet-geocoder.css">
+<script src="https://unpkg.com/esri-leaflet-geocoder/dist/esri-leaflet-geocoder.js"></script>
+
 {% endmacro %}
 
 {% macro script(this, kwargs) %}
@@ -72,6 +79,14 @@ set_express_locations = jinja2.Template("""
     var sender_marker=false, receiver_marker=false;
     var sender_lat, sender_lng, receiver_lat, receiver_lng;
     var routingControl;
+    var srlcg, sresri;
+    var rrlcg, rresri;
+    var geocoder_lcg = L.Control.Geocoder.nominatim();
+    var control = L.Control.geocoder({
+                        placeholder: 'Search               ',
+                        geocoder: geocoder_lcg
+                    }).addTo({{this._parent.get_name()}});
+    var geocoder_esri = L.esri.Geocoding.geocodeService();
 
     {{this._parent.get_name()}}.on('click', function(e) {
         function get_icon(color) {
@@ -81,12 +96,30 @@ set_express_locations = jinja2.Template("""
                             return icon;
         }
 
+     function remove_html_tags(s) {
+         return s.toString().replace( /(<([^>]+)>)/ig, "");
+     }
+
+     var result;
+     var rej_result = { name: "", html: "" };
+
+     geocoder_lcg.reverse(e.latlng, {{this._parent.get_name()}}.options.crs.scale({{this._parent.get_name()}}.getZoom()), 
+     function(r) {
+        result = r[0];
+        console.log("---", result);
+     });
+
+     geocoder_esri.reverse().latlng(e.latlng).run(function(error, result) {
+         console.log('~~~', result);
+     });
+
     var lat = e.latlng.lat.toFixed(4), lng = e.latlng.lng.toFixed(4);
     var data = lat + ", " + lng;
     if (!sender_marker) {
         var icon = get_icon('green');
         sender_marker = L.marker().setLatLng(e.latlng).setIcon(icon).addTo({{this._parent.get_name()}});
-        sender_marker.bindPopup("Latitude: " + lat + "<br>Longitude: " + lng );
+        sender_marker.bindPopup("<b>Sender Location</b><br>" +
+                                "Latitude: " + lat + "<br>Longitude: " + lng );
 
         setTimeout( function() {
             parentWindow.document.getElementById("sender_info-location").value = data;
@@ -106,7 +139,8 @@ set_express_locations = jinja2.Template("""
     else if (!receiver_marker) {
         var icon = get_icon('red');
         receiver_marker = L.marker().setLatLng(e.latlng).setIcon(icon).addTo({{this._parent.get_name()}});
-        receiver_marker.bindPopup("Latitude: " + lat + "<br>Longitude: " + lng );
+        receiver_marker.bindPopup("<b>Receiver Location</b><br>" +
+                                  "Latitude: " + lat + "<br>Longitude: " + lng );
 
         setTimeout( function() {
             parentWindow.document.getElementById("receiver_info-location").value = data;
