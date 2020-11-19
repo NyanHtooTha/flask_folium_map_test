@@ -75,6 +75,7 @@ set_express_locations = jinja2.Template("""
 
 {% macro script(this, kwargs) %}
 
+    map = {{this._parent.get_name()}};
     parentWindow = window.parent;
     var sender_marker=false, receiver_marker=false;
     var sender_lat, sender_lng, receiver_lat, receiver_lng;
@@ -82,13 +83,16 @@ set_express_locations = jinja2.Template("""
     var srlcg, sresri;
     var rrlcg, rresri;
     var geocoder_lcg = L.Control.Geocoder.nominatim();
-    var control = L.Control.geocoder({
+    /*var control = L.Control.geocoder({
+                        position: 'topleft',
                         placeholder: 'Search               ',
                         geocoder: geocoder_lcg
-                    }).addTo({{this._parent.get_name()}});
+                    }).addTo(map);*/
+    var esriSearchControl = new L.esri.Geocoding.geosearch().addTo(map);
     var geocoder_esri = L.esri.Geocoding.geocodeService();
 
-    {{this._parent.get_name()}}.on('click', function(e) {
+    map.on('click', function(e) {
+
         function get_icon(color) {
             var icon = L.AwesomeMarkers.icon(
                            {"extraClasses": "fa-rotate-0", "icon": "check",
@@ -96,106 +100,112 @@ set_express_locations = jinja2.Template("""
                             return icon;
         }
 
-     function remove_html_tags(s) {
-         return s.toString().replace( /(<([^>]+)>)/ig, "");
-     }
+        function remove_html_tags(s) {
+            return s.toString().replace( /(<([^>]+)>)/ig, "");
+        }
 
-     var result;
-     var rej_result = { name: "", html: "" };
+        var result;
+        var rej_result = { name: "", html: "" };
 
-     geocoder_lcg.reverse(e.latlng, {{this._parent.get_name()}}.options.crs.scale({{this._parent.get_name()}}.getZoom()), 
-     function(r) {
-        result = r[0];
-        console.log("---", result);
-     });
+        geocoder_lcg.reverse(e.latlng, map.options.crs.scale(map.getZoom()), function(r) {
+            result = r[0];
+            console.log("---", result);
+        });
 
-     geocoder_esri.reverse().latlng(e.latlng).run(function(error, result) {
-         console.log('~~~', result);
-     });
+        geocoder_esri.reverse().latlng(e.latlng).run(function(error, result) {
+            console.log('~~~', result);
+        });
 
-    var lat = e.latlng.lat.toFixed(4), lng = e.latlng.lng.toFixed(4);
-    var data = lat + ", " + lng;
-    if (!sender_marker) {
-        var icon = get_icon('green');
-        sender_marker = L.marker().setLatLng(e.latlng).setIcon(icon).addTo({{this._parent.get_name()}});
-        sender_marker.bindPopup("<b>Sender Location</b><br>" +
-                                "Latitude: " + lat + "<br>Longitude: " + lng );
+        var lat = e.latlng.lat.toFixed(4), lng = e.latlng.lng.toFixed(4);
+        var data = lat + ", " + lng;
 
-        setTimeout( function() {
-            parentWindow.document.getElementById("sender_info-location").value = data;
-            sender_lat = lat; sender_lng = lng;
-        }, 2000);
+        if (!sender_marker) {
 
-        sender_marker.on('dblclick', function(e) {
-            {{this._parent.get_name()}}.removeLayer(e.target);
-            parentWindow.document.getElementById("sender_info-location").value = "";
-            sender_marker = false;
-            if(routingControl) {
-                {{this._parent.get_name()}}.removeControl(routingControl);
-                routingControl = null;
+            var icon = get_icon('green');
+            sender_marker = L.marker().setLatLng(e.latlng).setIcon(icon).addTo(map);
+            sender_marker.bindPopup("<b>Sender Location</b><br>" +
+                                    "Latitude: " + lat + "<br>Longitude: " + lng );
+
+            setTimeout( function() {
+                parentWindow.document.getElementById("sender_info-location").value = data;
+                sender_lat = lat; sender_lng = lng;
+            }, 2000);
+
+            sender_marker.on('dblclick', function(e) {
+                map.removeLayer(e.target);
+                parentWindow.document.getElementById("sender_info-location").value = "";
+                sender_marker = false;
+                if(routingControl) {
+                    map.removeControl(routingControl);
+                    routingControl = null;
+                }
+            });
+        }
+        else if (!receiver_marker) {
+
+            var icon = get_icon('red');
+            receiver_marker = L.marker().setLatLng(e.latlng).setIcon(icon).addTo(map);
+            receiver_marker.bindPopup("<b>Receiver Location</b><br>" +
+                                    "Latitude: " + lat + "<br>Longitude: " + lng );
+
+            setTimeout( function() {
+                parentWindow.document.getElementById("receiver_info-location").value = data;
+                receiver_lat = lat; receiver_lng = lng;
+            }, 2000);
+
+            receiver_marker.on('dblclick', function(e) {
+                map.removeLayer(e.target);
+                parentWindow.document.getElementById("receiver_info-location").value = "";
+                receiver_marker = false;
+                if(routingControl) {
+                    map.removeControl(routingControl);
+                    routingControl = null;
+                }
+            });
+        }
+        else {
+
+            if(!routingControl) {
+
+                /*
+                L.Routing.control({ waypoints: [L.latLng(sender_lat, sender_lng),
+                                                L.latLng(receiver_lat, receiver_lng)],
+                                    routeWhileDragging: true,
+                                    collapsible: true,
+                                    show: false
+                                }).addTo(map);
+                */
+
+                var waypoints = [{ lat: sender_lat,
+                                    lng: sender_lng
+                                },
+                                { lat: receiver_lat,
+                                    lng: receiver_lng
+                                }];
+                routingControl = L.Routing.control({
+                    // router: new L.Routing.OSRMv1({
+                    //   serviceUrl: ROUTER_SERVICE_URL
+                    // }),
+                    plan: new L.Routing.plan([], {
+                        addWaypoints: false,
+                        draggableWaypoints: false,
+                        createMarker: () => undefined
+                    }),
+                    lineOptions: {
+                        addWaypoints: false
+                    },
+                    collapsible: true,
+                    show: false,
+                    scrollbar: true
+                    });
+
+                    map.addControl(routingControl);
+
+                    routingControl.setWaypoints(waypoints);
+
+                }
             }
-        });
-    }
-    else if (!receiver_marker) {
-        var icon = get_icon('red');
-        receiver_marker = L.marker().setLatLng(e.latlng).setIcon(icon).addTo({{this._parent.get_name()}});
-        receiver_marker.bindPopup("<b>Receiver Location</b><br>" +
-                                  "Latitude: " + lat + "<br>Longitude: " + lng );
-
-        setTimeout( function() {
-            parentWindow.document.getElementById("receiver_info-location").value = data;
-            receiver_lat = lat; receiver_lng = lng;
-        }, 2000);
-
-        receiver_marker.on('dblclick', function(e) {
-            {{this._parent.get_name()}}.removeLayer(e.target);
-            parentWindow.document.getElementById("receiver_info-location").value = "";
-            receiver_marker = false;
-            if(routingControl) {
-                {{this._parent.get_name()}}.removeControl(routingControl);
-                routingControl = null;
-            }
-        });
-    }
-    else {
-
-    /*
-    L.Routing.control({ waypoints: [L.latLng(sender_lat, sender_lng),
-                                    L.latLng(receiver_lat, receiver_lng)],
-                        routeWhileDragging: true,
-                        collapsible: true,
-                        show: false
-                      }).addTo({{this._parent.get_name()}});
-    */
-
-    var waypoints = [{ lat: sender_lat,
-                         lng: sender_lng
-                       },
-                       { lat: receiver_lat,
-                         lng: receiver_lng
-                       }];
-    routingControl = L.Routing.control({
-        // router: new L.Routing.OSRMv1({
-        //   serviceUrl: ROUTER_SERVICE_URL
-        // }),
-        plan: new L.Routing.plan([], {
-            addWaypoints: false,
-            draggableWaypoints: false,
-            createMarker: () => undefined
-        }),
-        lineOptions: {
-            addWaypoints: false
-        },
-        collapsible: true,
-        show: false
-        });
-
-        {{this._parent.get_name()}}.addControl(routingControl);
-
-        routingControl.setWaypoints(waypoints);
-
-    }
-});
+    });
 
 {% endmacro %}""")
 
