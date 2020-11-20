@@ -104,30 +104,60 @@ set_express_locations = jinja2.Template("""
             return s.toString().replace( /(<([^>]+)>)/ig, "");
         }
 
-        var result;
         var rej_result = { name: "", html: "" };
 
-        geocoder_lcg.reverse(e.latlng, map.options.crs.scale(map.getZoom()), function(r) {
-            result = r[0];
-            console.log("---", result);
-        });
+        var rlcg = result_lcg_address();
 
-        geocoder_esri.reverse().latlng(e.latlng).run(function(error, result) {
-            console.log('~~~', result);
-        });
+        rlcg
+            .then( (success) => { console.log("lcg success", success); } )
+            .catch( (reason) => { console.log("lcg reason", reason); } )
+            .finally();
+
+        var resri = result_esri_address();
+
+        resri
+            .then( (success) => { console.log("esri success", success); } )
+            .catch( (reason) => { console.log("esri reason", reason); } )
+            .finally();
+
+        function result_lcg_address()
+        {
+            return new Promise(function (resolve, reject) {
+                geocoder_lcg.reverse(e.latlng, map.options.crs.scale(map.getZoom()), function(result) {
+                    if (result[0]) {
+                        resolve(result[0]);
+                    } else {
+                        reject(rej_result);
+                    }
+                });
+            });
+        }
+
+        function result_esri_address()
+        {
+            return new Promise(function (resolve, reject) {
+                geocoder_esri.reverse().latlng(e.latlng).run(function(error, result) {
+                    if (result) {
+                        resolve(result);
+                    } else {
+                        reject(rej_result);
+                    }
+                });
+            });
+        }
 
         var lat = e.latlng.lat.toFixed(4), lng = e.latlng.lng.toFixed(4);
-        var data = lat + ", " + lng;
+        var latlng = lat + ", " + lng;
 
         if (!sender_marker) {
 
             var icon = get_icon('green');
             sender_marker = L.marker().setLatLng(e.latlng).setIcon(icon).addTo(map);
-            sender_marker.bindPopup("<b>Sender Location</b><br>" +
-                                    "Latitude: " + lat + "<br>Longitude: " + lng );
+            sender_marker.bindPopup("<b style='color:green;'>Sender Location</b><br>" +
+                                    "<font color=blue>Lat, Lng:</font>&nbsp;" + latlng );
 
             setTimeout( function() {
-                parentWindow.document.getElementById("sender_info-location").value = data;
+                parentWindow.document.getElementById("sender_info-location").value = latlng;
                 sender_lat = lat; sender_lng = lng;
             }, 2000);
 
@@ -145,11 +175,11 @@ set_express_locations = jinja2.Template("""
 
             var icon = get_icon('red');
             receiver_marker = L.marker().setLatLng(e.latlng).setIcon(icon).addTo(map);
-            receiver_marker.bindPopup("<b>Receiver Location</b><br>" +
-                                    "Latitude: " + lat + "<br>Longitude: " + lng );
+            receiver_marker.bindPopup("<b style='color:red;'>Receiver Location</b><br>" +
+                                      "<font color=blue>Lat, Lng:</font>&nbsp;" + latlng );
 
             setTimeout( function() {
-                parentWindow.document.getElementById("receiver_info-location").value = data;
+                parentWindow.document.getElementById("receiver_info-location").value = latlng;
                 receiver_lat = lat; receiver_lng = lng;
             }, 2000);
 
