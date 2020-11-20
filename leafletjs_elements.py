@@ -90,60 +90,62 @@ set_express_locations = jinja2.Template("""
                     }).addTo(map);*/
     var esriSearchControl = new L.esri.Geocoding.geosearch().addTo(map);
     var geocoder_esri = L.esri.Geocoding.geocodeService();
+    var rej_result = { name: "", html: "" };
+
+    function get_icon(color) {
+        var icon = L.AwesomeMarkers.icon(
+                        {"extraClasses": "fa-rotate-0", "icon": "check",
+                         "iconColor": "white", "markerColor": color, "prefix": "glyphicon"});
+        return icon;
+    }
+
+    function remove_html_tags(s) {
+        return s.toString().replace( /(<([^>]+)>)/ig, "");
+    }
 
     map.on('click', function(e) {
 
-        function get_icon(color) {
-            var icon = L.AwesomeMarkers.icon(
-                           {"extraClasses": "fa-rotate-0", "icon": "check",
-                            "iconColor": "white", "markerColor": color, "prefix": "glyphicon"});
-                            return icon;
-        }
+        if (!sender_marker || !receiver_marker) {
 
-        function remove_html_tags(s) {
-            return s.toString().replace( /(<([^>]+)>)/ig, "");
-        }
+            var rlcg = result_lcg_address();
 
-        var rej_result = { name: "", html: "" };
+            rlcg
+                .then( (success) => { console.log("lcg success", success); } )
+                .catch( (reason) => { console.log("lcg reason", reason); } )
+                .finally();
 
-        var rlcg = result_lcg_address();
+            var resri = result_esri_address();
 
-        rlcg
-            .then( (success) => { console.log("lcg success", success); } )
-            .catch( (reason) => { console.log("lcg reason", reason); } )
-            .finally();
+            resri
+                .then( (success) => { console.log("esri success", success); } )
+                .catch( (reason) => { console.log("esri reason", reason); } )
+                .finally();
 
-        var resri = result_esri_address();
-
-        resri
-            .then( (success) => { console.log("esri success", success); } )
-            .catch( (reason) => { console.log("esri reason", reason); } )
-            .finally();
-
-        function result_lcg_address()
-        {
-            return new Promise(function (resolve, reject) {
-                geocoder_lcg.reverse(e.latlng, map.options.crs.scale(map.getZoom()), function(result) {
-                    if (result[0]) {
-                        resolve(result[0]);
-                    } else {
-                        reject(rej_result);
-                    }
+            function result_lcg_address()
+            {
+                return new Promise(function (resolve, reject) {
+                    geocoder_lcg.reverse(e.latlng, map.options.crs.scale(map.getZoom()), function(result) {
+                        if (result[0]) {
+                            resolve(result[0]);
+                        } else {
+                            reject(rej_result);
+                        }
+                    });
                 });
-            });
-        }
+            }
 
-        function result_esri_address()
-        {
-            return new Promise(function (resolve, reject) {
-                geocoder_esri.reverse().latlng(e.latlng).run(function(error, result) {
-                    if (result) {
-                        resolve(result);
-                    } else {
-                        reject(rej_result);
-                    }
+            function result_esri_address()
+            {
+                return new Promise(function (resolve, reject) {
+                    geocoder_esri.reverse().latlng(e.latlng).run(function(error, result) {
+                        if (result) {
+                            resolve(result);
+                        } else {
+                            reject(rej_result);
+                        }
+                    });
                 });
-            });
+            }
         }
 
         var lat = e.latlng.lat.toFixed(4), lng = e.latlng.lng.toFixed(4);
