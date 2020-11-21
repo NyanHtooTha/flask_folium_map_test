@@ -105,23 +105,29 @@ set_express_locations = jinja2.Template("""
 
     map.on('click', function(e) {
 
-        var new_marker = L.marker().setLatLng(e.latlng);
         var lat = e.latlng.lat.toFixed(4), lng = e.latlng.lng.toFixed(4);
         var latlng = lat + ", " + lng;
+        var new_marker = L.marker().setLatLng(e.latlng);
+        var marker_popup  = L.DomUtil.create('div');
+        var marker_title  = L.DomUtil.create('div', 'marker_title', marker_popup);
+        var esri_address  = L.DomUtil.create('div', 'esri_address', marker_popup);
+        var lcg_address   = L.DomUtil.create('div', 'lcg_address', marker_popup);
+        var loc_latlng = L.DomUtil.create('div', 'loc_latlng', marker_popup);
+        loc_latlng.innerHTML = "<font color=blue>Lat, Lng:</font>&nbsp;" + latlng;
 
         if (!sender_marker || !receiver_marker) {
 
             var rlcg = result_lcg_address();
 
             rlcg
-                .then( (success) => { console.log("lcg success", success); } )
+                .then( (success) => { lcg_address.innerHTML = success.name; } )
                 .catch( (reason) => { console.log("lcg reason", reason); } )
                 .finally();
 
             var resri = result_esri_address();
 
             resri
-                .then( (success) => { console.log("esri success", success); } )
+                .then( (success) => { esri_address.innerHTML = success.address.Match_addr; } )
                 .catch( (reason) => { console.log("esri reason", reason); } )
                 .finally();
 
@@ -155,8 +161,8 @@ set_express_locations = jinja2.Template("""
         if (!sender_marker) {
 
             sender_marker = new_marker.setIcon(get_icon('green')).addTo(map);
-            sender_marker.bindPopup("<b style='color:green;'>Sender Location</b><br>" +
-                                    "<font color=blue>Lat, Lng:</font>&nbsp;" + latlng );
+            marker_title.innerHTML  = "<b style='color:green;'>Sender Location</b>";
+            sender_marker.bindPopup(marker_popup);
 
             setTimeout( function() {
                 parentWindow.document.getElementById("sender_info-location").value = latlng;
@@ -176,8 +182,8 @@ set_express_locations = jinja2.Template("""
         else if (!receiver_marker) {
 
             receiver_marker = new_marker.setIcon(get_icon('red')).addTo(map);
-            receiver_marker.bindPopup("<b style='color:red;'>Receiver Location</b><br>" +
-                                      "<font color=blue>Lat, Lng:</font>&nbsp;" + latlng );
+            marker_title.innerHTML  = "<b style='color:red;'>Receiver Location</b>";
+            receiver_marker.bindPopup(marker_popup);
 
             setTimeout( function() {
                 parentWindow.document.getElementById("receiver_info-location").value = latlng;
