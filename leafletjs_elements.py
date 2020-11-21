@@ -90,7 +90,7 @@ set_express_locations = jinja2.Template("""
                     }).addTo(map);*/
     var esriSearchControl = new L.esri.Geocoding.geosearch().addTo(map);
     var geocoder_esri = L.esri.Geocoding.geocodeService();
-    var rej_result = { name: "", html: "" };
+    var rej_result = { name: "", html: "", address: { Match_addr: "" } };
 
     function get_icon(color) {
         var icon = L.AwesomeMarkers.icon(
@@ -104,6 +104,10 @@ set_express_locations = jinja2.Template("""
     }
 
     map.on('click', function(e) {
+
+        var new_marker = L.marker().setLatLng(e.latlng);
+        var lat = e.latlng.lat.toFixed(4), lng = e.latlng.lng.toFixed(4);
+        var latlng = lat + ", " + lng;
 
         if (!sender_marker || !receiver_marker) {
 
@@ -148,13 +152,9 @@ set_express_locations = jinja2.Template("""
             }
         }
 
-        var lat = e.latlng.lat.toFixed(4), lng = e.latlng.lng.toFixed(4);
-        var latlng = lat + ", " + lng;
-
         if (!sender_marker) {
 
-            var icon = get_icon('green');
-            sender_marker = L.marker().setLatLng(e.latlng).setIcon(icon).addTo(map);
+            sender_marker = new_marker.setIcon(get_icon('green')).addTo(map);
             sender_marker.bindPopup("<b style='color:green;'>Sender Location</b><br>" +
                                     "<font color=blue>Lat, Lng:</font>&nbsp;" + latlng );
 
@@ -175,8 +175,7 @@ set_express_locations = jinja2.Template("""
         }
         else if (!receiver_marker) {
 
-            var icon = get_icon('red');
-            receiver_marker = L.marker().setLatLng(e.latlng).setIcon(icon).addTo(map);
+            receiver_marker = new_marker.setIcon(get_icon('red')).addTo(map);
             receiver_marker.bindPopup("<b style='color:red;'>Receiver Location</b><br>" +
                                       "<font color=blue>Lat, Lng:</font>&nbsp;" + latlng );
 
