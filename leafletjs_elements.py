@@ -80,8 +80,8 @@ set_express_locations = jinja2.Template("""
     var sender_marker=false, receiver_marker=false;
     var sender_lat, sender_lng, receiver_lat, receiver_lng;
     var routingControl;
-    var srlcg, sresri;
-    var rrlcg, rresri;
+    var result_lcg;
+    var result_esri;
     var geocoder_lcg = L.Control.Geocoder.nominatim();
     /*var control = L.Control.geocoder({
                         position: 'topleft',
@@ -114,6 +114,7 @@ set_express_locations = jinja2.Template("""
         var lcg_address   = L.DomUtil.create('div', 'lcg_address', marker_popup);
         var loc_latlng = L.DomUtil.create('div', 'loc_latlng', marker_popup);
         loc_latlng.innerHTML = "<font color=blue>Lat, Lng:</font>&nbsp;" + latlng;
+        var srflag;
 
         if (!sender_marker || !receiver_marker) {
 
@@ -127,9 +128,17 @@ set_express_locations = jinja2.Template("""
             var resri = result_esri_address();
 
             resri
-                .then( (success) => { esri_address.innerHTML = success.address.Match_addr; } )
+                .then( (success) => { esri_address.innerHTML = success.address.Match_addr;
+                                      result_esri = success;
+                                    } )
                 .catch( (reason) => { console.log("esri reason", reason); } )
-                .finally();
+                .finally( () => {
+                    if (srflag) {
+                        parentWindow.document.getElementById("sender_info-address").value = result_esri.address.Match_addr;
+                    } else {
+                        parentWindow.document.getElementById("receiver_info-address").value = result_esri.address.Match_addr;
+                    }
+                });
 
             function result_lcg_address()
             {
@@ -159,7 +168,7 @@ set_express_locations = jinja2.Template("""
         }
 
         if (!sender_marker) {
-
+            srflag = true;
             sender_marker = new_marker.setIcon(get_icon('green')).addTo(map);
             marker_title.innerHTML  = "<b style='color:green;'>Sender Location</b>";
             sender_marker.bindPopup(marker_popup);
@@ -172,6 +181,7 @@ set_express_locations = jinja2.Template("""
             sender_marker.on('dblclick', function(e) {
                 map.removeLayer(e.target);
                 parentWindow.document.getElementById("sender_info-location").value = "";
+                parentWindow.document.getElementById("sender_info-address").value = "";
                 sender_marker = false;
                 if(routingControl) {
                     map.removeControl(routingControl);
@@ -180,7 +190,7 @@ set_express_locations = jinja2.Template("""
             });
         }
         else if (!receiver_marker) {
-
+            srflag = false;
             receiver_marker = new_marker.setIcon(get_icon('red')).addTo(map);
             marker_title.innerHTML  = "<b style='color:red;'>Receiver Location</b>";
             receiver_marker.bindPopup(marker_popup);
@@ -193,6 +203,7 @@ set_express_locations = jinja2.Template("""
             receiver_marker.on('dblclick', function(e) {
                 map.removeLayer(e.target);
                 parentWindow.document.getElementById("receiver_info-location").value = "";
+                parentWindow.document.getElementById("receiver_info-address").value = "";
                 receiver_marker = false;
                 if(routingControl) {
                     map.removeControl(routingControl);
