@@ -114,6 +114,8 @@ set_express_locations = jinja2.Template("""
         var lcg_address   = L.DomUtil.create('div', 'lcg_address', marker_popup);
         var loc_latlng = L.DomUtil.create('div', 'loc_latlng', marker_popup);
         loc_latlng.innerHTML = "<font color=blue>Lat, Lng:</font>&nbsp;" + latlng;
+        var del_marker = L.DomUtil.create('div', 'del_marker', marker_popup);
+        del_marker.innerHTML = '<div align=right><input class="del_marker" type="button" value="Delete"/></div>'
         var srflag;
 
         if (!sender_marker || !receiver_marker) {
@@ -178,15 +180,17 @@ set_express_locations = jinja2.Template("""
                 sender_lat = lat; sender_lng = lng;
             }, 2000);
 
-            sender_marker.on('dblclick', function(e) {
-                map.removeLayer(e.target);
-                parentWindow.document.getElementById("sender_info-location").value = "";
-                parentWindow.document.getElementById("sender_info-address").value = "";
-                sender_marker = false;
-                if(routingControl) {
-                    map.removeControl(routingControl);
-                    routingControl = null;
-                }
+            sender_marker.on("popupopen", function (e) {
+                $('.del_marker').click(function() {
+                    map.removeLayer(e.target);
+                    parentWindow.document.getElementById("sender_info-location").value = "";
+                    parentWindow.document.getElementById("sender_info-address").value = "";
+                    sender_marker = false;
+                    if(routingControl) {
+                        map.removeControl(routingControl);
+                        routingControl = null;
+                    }
+                });
             });
         }
         else if (!receiver_marker) {
@@ -200,15 +204,17 @@ set_express_locations = jinja2.Template("""
                 receiver_lat = lat; receiver_lng = lng;
             }, 2000);
 
-            receiver_marker.on('dblclick', function(e) {
-                map.removeLayer(e.target);
-                parentWindow.document.getElementById("receiver_info-location").value = "";
-                parentWindow.document.getElementById("receiver_info-address").value = "";
-                receiver_marker = false;
-                if(routingControl) {
-                    map.removeControl(routingControl);
-                    routingControl = null;
-                }
+            receiver_marker.on("popupopen", function (e) {
+                $('.del_marker').click(function() {
+                    map.removeLayer(e.target);
+                    parentWindow.document.getElementById("receiver_info-location").value = "";
+                    parentWindow.document.getElementById("receiver_info-address").value = "";
+                    receiver_marker = false;
+                    if(routingControl) {
+                        map.removeControl(routingControl);
+                        routingControl = null;
+                    }
+                });
             });
         }
         else {
