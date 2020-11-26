@@ -17,6 +17,8 @@
   overflow-x: hidden;
   transition: 0.5s;
   padding-top: 60px;
+  min-width: 250px;
+  max-width: 250px;
 }
 
 .sidebar a {
@@ -124,7 +126,12 @@ a.article, a.article:hover {
 
 .move_it {
   transition: margin-left .5s;
+  margin-left: 250px;
   <!-- padding: 16px; -->
+}
+
+.move_it.active {
+    margin-left: 0px;
 }
 
 /* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
@@ -142,16 +149,13 @@ a.article, a.article:hover {
 {% endblock %}
 
 {% block navbar %}
-<div class="navbar navbar-inverse move_it" role="navigation" style="margin-bottom: 0px;">
+<div class="navbar navbar-default move_it" role="navigation" style="margin-bottom: 0px;">
     <div class="container-fluid">
         <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
+            <button type="button" id="sidebarCollapse" class="btn btn-info navbar-btn">
+                <i class="glyphicon glyphicon-align-justify"></i>
+                    <span>Test</span>
             </button>
-            <a class="navbar-brand" onclick="openNav()">Test</a>
         </div>
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
@@ -166,7 +170,7 @@ a.article, a.article:hover {
 </div>
 
 <div id="mySidebar" class="sidebar">
-    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
+    <!-- <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a> -->
     <div class="sidebar-header">
         <h3>Bootstrap Sidebar</h3>
     </div>
@@ -212,6 +216,13 @@ a.article, a.article:hover {
 {% block scripts %}
 {{ super() }}
 <script>
+$(document).ready(function () {
+    $('#sidebarCollapse').on('click', function () {
+        $('.sidebar').toggleClass('active');
+            $('.move_it').toggleClass('active');
+        });
+});
+/*
 function openNav() {
   document.getElementById("mySidebar").style.width = "250px";
   document.getElementsByClassName("move_it")[0].style.marginLeft = "250px";
@@ -221,7 +232,8 @@ function openNav() {
 function closeNav() {
   document.getElementById("mySidebar").style.width = "0";
   document.getElementsByClassName("move_it")[0].style.marginLeft= "0";
-  document.getElementsByClassName("move_it")[1].style.marginLeft= "0px";
+  document.getElementsByClassName("move_it")[1].style.marginLeft= "0";
 }
+*/
 </script>
 {% endblock %}
