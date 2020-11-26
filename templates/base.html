@@ -41,7 +41,7 @@
 
 .move_it {
   transition: margin-left .5s;
-  padding: 16px;
+  <!-- padding: 16px; -->
 }
 
 /* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
@@ -81,7 +81,6 @@
         </div>
     </div>
 </div>
-
 <div id="mySidebar" class="sidebar">
   <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
   <a href="#">About</a>
@@ -93,7 +92,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="container move_it">
+<div class="container-fluid move_it">
     {% block page_content %}{% endblock %}
 </div>
 {% endblock %}
@@ -110,7 +109,7 @@ function openNav() {
 function closeNav() {
   document.getElementById("mySidebar").style.width = "0";
   document.getElementsByClassName("move_it")[0].style.marginLeft= "0";
-  document.getElementsByClassName("move_it")[1].style.marginLeft= "90px";
+  document.getElementsByClassName("move_it")[1].style.marginLeft= "0px";
 }
 </script>
 {% endblock %}
