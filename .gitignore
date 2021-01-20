@@ -1,2 +1,2 @@
 __pycache__/
-templates/map.html
+app/static/map.html

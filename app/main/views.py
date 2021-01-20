@@ -1,44 +1,15 @@
-from flask import Flask, session, redirect, url_for, render_template
-from flask_bootstrap import Bootstrap
-from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, Form, FormField
-from wtforms.validators import DataRequired
-from wtforms.widgets import TextArea
+from flask import session, redirect, url_for, render_template
 import folium
 from folium import plugins
-from leafletjs_elements import elements
-from calculate import get_mid_point
-import jinja2
-from tile_layers import basemaps
+from .leafletjs_elements import elements
+from .calculate import get_mid_point
+from .tile_layers import basemaps
+from . import main
+from .forms import TestForm, Info, ExpressForm
 
 
 
-app = Flask(__name__)
-bootstrap = Bootstrap(app)
-app.config['SECRET_KEY'] = 'this is secret string'
-
-
-class TestForm(FlaskForm):
-    name = StringField('What is your name?', validators=[DataRequired()])
-    latlng = StringField('Clicked location:', default="")
-    locate = StringField('Current location:', default="")
-    submit = SubmitField('Submit')
-
-
-class Info(Form):
-    name = StringField('Name', validators=[DataRequired()])
-    phone = StringField('Phone Number')
-    location = StringField('Location')
-    address = StringField('Address', widget=TextArea())
-
-
-class ExpressForm(FlaskForm):
-    sender_info = FormField(Info)
-    receiver_info = FormField(Info)
-    submit = SubmitField('Submit')
-
-
-@app.route('/', methods=["GET", "POST"])
+@main.route('/', methods=["GET", "POST"])
 def index():
     form = TestForm()
     start_coords = (16.79631, 96.16469)
@@ -66,18 +37,18 @@ def index():
     map_tem.add_child(plugins.LocateControl())
     el = folium.MacroElement().add_to(map_tem)
     el._template = elements["set_latlng_locate"]
-    map_tem.save('templates/map.html')
+    map_tem.save("app/static/map.html")
     if form.validate_on_submit():
         session["name"] = form.name.data
         session["latlng"] = form.latlng.data
         session["locate"] = form.locate.data
-        return redirect(url_for("index"))
+        return redirect(url_for(".index"))
     return render_template('index.html', form=form,
                             name = session.get("name"),
                             latlng = session.get("latlng") )
 
 
-@app.route('/express')
+@main.route('/express')
 def express():
     form = ExpressForm()
     start_coords = (16.79631, 96.16469)
@@ -88,16 +59,16 @@ def express():
     folium.LayerControl().add_to(map_tem)
     el = folium.MacroElement().add_to(map_tem)
     el._template = elements["set_express_locations"]
-    map_tem.save('templates/map.html')
+    map_tem.save("app/static/map.html")
     return render_template('express.html', form=form)
 
 
-@app.route('/map')
-def route_map():
-    return render_template("map.html")
+#@main.route('/map')
+#def route_map():
+#    return render_template("map.html")
 
 
-@app.route('/test')
+@main.route('/test')
 def test():
     start_coords = (16.79631, 96.16469)
     map_tem = folium.Map(location=start_coords, zoom_start=14, control_scale=True)
@@ -171,10 +142,5 @@ def test():
     fg.add_child(a)
     fg.add_child(b)
 
-    map_tem.save('templates/map.html')
+    map_tem.save("app/static/map.html")
     return render_template("test.html")
-
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
