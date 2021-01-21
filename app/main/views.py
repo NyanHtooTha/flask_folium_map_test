@@ -6,6 +6,7 @@ from .calculate import get_mid_point
 from .tile_layers import basemaps
 from . import main
 from .forms import TestForm, Info, ExpressForm
+import os
 
 
 
@@ -37,7 +38,7 @@ def index():
     map_tem.add_child(plugins.LocateControl())
     el = folium.MacroElement().add_to(map_tem)
     el._template = elements["set_latlng_locate"]
-    map_tem.save("app/static/map.html")
+    map_tem.save(os.path.join(os.getcwd(), "app", "static", "map.html"))
     if form.validate_on_submit():
         session["name"] = form.name.data
         session["latlng"] = form.latlng.data
@@ -59,7 +60,7 @@ def express():
     folium.LayerControl().add_to(map_tem)
     el = folium.MacroElement().add_to(map_tem)
     el._template = elements["set_express_locations"]
-    map_tem.save("app/static/map.html")
+    map_tem.save(os.path.join(os.getcwd(), "app", "static", "map.html"))
     return render_template('express.html', form=form)
 
 
@@ -142,5 +143,5 @@ def test():
     fg.add_child(a)
     fg.add_child(b)
 
-    map_tem.save("app/static/map.html")
+    map_tem.save(os.path.join(os.getcwd(), "app", "static", "map.html"))
     return render_template("test.html")

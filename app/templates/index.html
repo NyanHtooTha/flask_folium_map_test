@@ -21,8 +21,11 @@
 <script>
 {# double-click on screen to unset latlng an locate #}
 document.addEventListener('dblclick', function(e) {
-    document.getElementById("locations").reset();
-    document.getElementById("mapframe").contentWindow.remove_marker();
+    l = document.getElementById("locations")
+    if(l.latlng.value) {
+        l.valueOf(latlng).reset();
+        document.getElementById("mapframe").contentWindow.remove_marker();
+    }
 });
 </script>
 {% endblock %}
