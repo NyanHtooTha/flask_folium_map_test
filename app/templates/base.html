@@ -84,7 +84,8 @@
     {% block page_content %}{% endblock %}
 
 <footer>
-    <div style="height: 32px;">
+    <div style="height: 32px; width: 100%;
+    {% if bottom %} position: fixed; bottom: 0; {% endif %}">
         <b>&copy; Flask Folium Testing.</b>
     </div>
 </footer>

@@ -144,4 +144,4 @@ def test():
     fg.add_child(b)
 
     map_tem.save(os.path.join(os.getcwd(), "app", "static", "map.html"))
-    return render_template("test.html")
+    return render_template("test.html", bottom=1)
